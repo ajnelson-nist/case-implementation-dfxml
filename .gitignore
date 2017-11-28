@@ -1,0 +1,5 @@
+*.pyc
+.git_submodule_init
+.setup_complete
+__pycache__
+venv
