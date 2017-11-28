@@ -1,0 +1,3 @@
+[submodule "deps/case-api-python"]
+	path = deps/case-api-python
+	url = https://github.com/casework/case-api-python.git
