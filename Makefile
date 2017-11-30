@@ -43,16 +43,7 @@ all:
 	test -r venv/lib/python3.5/site-packages/case-*.egg || \
 	  ( \
 	    source venv/bin/activate ; \
-	      pushd deps/case-api-python ; \
-	        python setup.py install ; \
-	      popd ; \
-	    deactivate \
-	  )
-	#TODO Delete this next line after determining why rdflib, listed in the CASE API's dependencies, isn't getting installed, but rdflib-jsonld is.
-	test -r venv/lib/python3.5/site-packages/rdflib-*.egg || \
-	  ( \
-	    source venv/bin/activate ; \
-	      pip install rdflib ; \
+	      pip install deps/case-api-python ; \
 	    deactivate \
 	  )
 	touch $@
