@@ -25,9 +25,8 @@ all:
   reset \
   setup
 
+# Removing this flag file checks for added or removed submodules, but does not cause a submodule update to occur on submodules that have already been checked out at least once.
 .git_submodule_init:
-	test -r deps/case/.git || \
-	  (git submodule init deps/case ; git submodule update deps/case)
 	test -r deps/case-api-python/.git || \
 	  (git submodule init deps/case-api-python ; git submodule update deps/case-api-python)
 	test -r deps/dfxml/.git || \
@@ -76,7 +75,7 @@ clean-recursive:
 
 reset: \
   clean
-	@rm -rf .setup_complete venv
+	@rm -rf .git_submodule_init .setup_complete venv
 
 setup: \
   .setup_complete
