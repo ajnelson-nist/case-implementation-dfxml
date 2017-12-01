@@ -26,9 +26,15 @@ all:
   setup
 
 # Removing this flag file checks for added or removed submodules, but does not cause a submodule update to occur on submodules that have already been checked out at least once.
-.git_submodule_init:
+.git_submodule_init: \
+  .gitmodules
+	git submodule sync
+	test -r deps/case/.git || \
+	  (git submodule init deps/case && git submodule update deps/case)
 	test -r deps/case-api-python/.git || \
 	  (git submodule init deps/case-api-python && git submodule update deps/case-api-python)
+	test -r deps/case-implementation-plaso/.git || \
+	  (git submodule init deps/case-implementation-plaso && git submodule update deps/case-implementation-plaso)
 	test -r deps/dfxml/.git || \
 	  (git submodule init deps/dfxml && git submodule update deps/dfxml)
 	test -r deps/dfxml_schema/.git || \

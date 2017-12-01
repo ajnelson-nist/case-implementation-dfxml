@@ -15,23 +15,51 @@ SHELL = /bin/bash
 
 all:
 
+.PHONY: \
+  check-basic \
+  check-case_examples \
+  check-case_implementation_plaso_examples \
+  clean-case_examples \
+  clean-case_implementation_plaso_examples \
+  clean-recursive
+
 %.dfxml.validates.log: \
   %.dfxml
 	xmllint --schema ../deps/dfxml_schema/dfxml.xsd $< >/dev/null
 	touch $@
 
 check: \
+  check-case_examples \
+  check-case_implementation_plaso_examples
+	@echo "Unit tests pass!"
+
+check-basic: \
   empty.json \
   single_file_1.rdf \
   verify_single_file.log \
   verify_single_filesystem_single_file.log
-	@echo "Unit tests pass!"
 
-clean:
+check-case_examples: \
+  check-basic
+	$(MAKE) -C case_examples check
+
+check-case_implementation_plaso_examples: \
+  check-basic
+	$(MAKE) -C case_implementation_plaso_examples check
+
+clean: \
+  clean-recursive
 	@rm -rf *dfxml *json *log *pyc *rdf *ttl __pycache__
 
-clean-recursive:
+clean-case_examples:
 	$(MAKE) -C case_examples clean
+
+clean-case_implementation_plaso_examples:
+	$(MAKE) -C case_implementation_plaso_examples clean
+
+clean-recursive: \
+  clean-case_examples \
+  clean-case_implementation_plaso_examples
 
 empty.json: \
   ../.setup_complete \

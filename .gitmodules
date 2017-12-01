@@ -1,6 +1,12 @@
+[submodule "deps/case"]
+	path = deps/case
+	url = https://github.com/ajnelson-nist/case.git
 [submodule "deps/case-api-python"]
 	path = deps/case-api-python
 	url = https://github.com/casework/case-api-python.git
+[submodule "deps/case-implementation-plaso"]
+	path = deps/case-implementation-plaso
+	url = https://github.com/casework/case-implementation-plaso.git
 [submodule "deps/dfxml"]
 	path = deps/dfxml
 	url = https://github.com/simsong/dfxml.git
