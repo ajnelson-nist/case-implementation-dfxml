@@ -28,11 +28,11 @@ all:
 # Removing this flag file checks for added or removed submodules, but does not cause a submodule update to occur on submodules that have already been checked out at least once.
 .git_submodule_init:
 	test -r deps/case-api-python/.git || \
-	  (git submodule init deps/case-api-python ; git submodule update deps/case-api-python)
+	  (git submodule init deps/case-api-python && git submodule update deps/case-api-python)
 	test -r deps/dfxml/.git || \
-	  (git submodule init deps/dfxml ; git submodule update deps/dfxml)
+	  (git submodule init deps/dfxml && git submodule update deps/dfxml)
 	test -r deps/dfxml_schema/.git || \
-	  (git submodule init deps/dfxml_schema ; git submodule update deps/dfxml_schema)
+	  (git submodule init deps/dfxml_schema && git submodule update deps/dfxml_schema)
 	touch $@
 
 .setup_complete: \
@@ -43,7 +43,7 @@ all:
 	test -r venv/lib/python3.5/site-packages/case-*.egg || \
 	  ( \
 	    source venv/bin/activate ; \
-	      pip install deps/case-api-python ; \
+	      pip install deps/case-api-python || exit $$? ; \
 	    deactivate \
 	  )
 	touch $@
