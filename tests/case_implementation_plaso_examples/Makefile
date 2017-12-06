@@ -38,7 +38,8 @@ all:
 	python ../../case_to_dfxml.py $< >(xmllint --format - > _$@)
 	mv _$@ $@
 
-#TODO These files have a problem parsing.
+#TODO These files have a problem parsing.  Issue filed here:
+#  https://github.com/casework/case-implementation-plaso/issues/2
 check-TODO: \
   android_calls.xml.dfxml.validates.log \
   android_sms.xml.dfxml.validates.log \
