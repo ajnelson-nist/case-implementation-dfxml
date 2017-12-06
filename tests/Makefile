@@ -15,6 +15,11 @@ SHELL = /bin/bash
 
 all:
 
+%.dfxml.validates.log: \
+  %.dfxml
+	xmllint --schema ../deps/dfxml_schema/dfxml.xsd $< >/dev/null
+	touch $@
+
 .PHONY: \
   check-basic \
   check-case_examples \
@@ -22,11 +27,6 @@ all:
   clean-case_examples \
   clean-case_implementation_plaso_examples \
   clean-recursive
-
-%.dfxml.validates.log: \
-  %.dfxml
-	xmllint --schema ../deps/dfxml_schema/dfxml.xsd $< >/dev/null
-	touch $@
 
 check: \
   check-case_examples \
@@ -76,12 +76,11 @@ single_file_0.dfxml: \
 	python single_file_0_dfxml.py >(xmllint --format - > _$@)
 	mv _$@ $@
 
-single_filesystem_single_file_0.dfxml: \
-  Objects.py \
-  empty.json \
-  single_filesystem_single_file_0_dfxml.py
-	rm -f _$@ __$@
-	python single_filesystem_single_file_0_dfxml.py >(xmllint --format - > _$@)
+single_file_0_2_deltas.dfxml: \
+  make_differential_dfxml.py \
+  single_file_2.dfxml.validates.log
+	rm -f _$@
+	python make_differential_dfxml.py --retain-unchanged single_file_{0,2}.dfxml | xmllint --format - > _$@
 	mv _$@ $@
 
 single_file_1.rdf: \
@@ -100,6 +99,28 @@ single_file_1.ttl: \
 	python ../dfxml_to_case.py --debug --output-format=ttl single_file_0.dfxml _$@
 	mv _$@ $@
 
+single_file_2.dfxml: \
+  ../case_to_dfxml.py \
+  single_file_1.ttl
+	rm -f _$@ __$@
+	python ../case_to_dfxml.py --debug single_file_1.ttl >(xmllint --format - > _$@)
+	mv _$@ $@
+
+single_filesystem_single_file_0.dfxml: \
+  Objects.py \
+  empty.json \
+  single_filesystem_single_file_0_dfxml.py
+	rm -f _$@ __$@
+	python single_filesystem_single_file_0_dfxml.py >(xmllint --format - > _$@)
+	mv _$@ $@
+
+single_filesystem_single_file_0_2_deltas.dfxml: \
+  make_differential_dfxml.py \
+  single_filesystem_single_file_2.dfxml.validates.log
+	rm -f _$@
+	python make_differential_dfxml.py --retain-unchanged single_filesystem_single_file_{0,2}.dfxml | xmllint --format - > _$@
+	mv _$@ $@
+
 single_filesystem_single_file_1.ttl: \
   ../.setup_complete \
   ../dfxml_to_case.py \
@@ -108,32 +129,11 @@ single_filesystem_single_file_1.ttl: \
 	python ../dfxml_to_case.py --debug --output-format=ttl single_filesystem_single_file_0.dfxml _$@
 	mv _$@ $@
 
-single_file_2.dfxml: \
-  ../case_to_dfxml.py \
-  single_file_1.ttl
-	rm -f _$@ __$@
-	python ../case_to_dfxml.py --debug single_file_1.ttl >(xmllint --format - > _$@)
-	mv _$@ $@
-
 single_filesystem_single_file_2.dfxml: \
   ../case_to_dfxml.py \
   single_filesystem_single_file_1.ttl
 	rm -f _$@ __$@
 	python ../case_to_dfxml.py --debug single_filesystem_single_file_1.ttl >(xmllint --format - > _$@)
-	mv _$@ $@
-
-single_file_0_2_deltas.dfxml: \
-  make_differential_dfxml.py \
-  single_file_2.dfxml.validates.log
-	rm -f _$@
-	python make_differential_dfxml.py --retain-unchanged single_file_{0,2}.dfxml | xmllint --format - > _$@
-	mv _$@ $@
-
-single_filesystem_single_file_0_2_deltas.dfxml: \
-  make_differential_dfxml.py \
-  single_filesystem_single_file_2.dfxml.validates.log
-	rm -f _$@
-	python make_differential_dfxml.py --retain-unchanged single_filesystem_single_file_{0,2}.dfxml | xmllint --format - > _$@
 	mv _$@ $@
 
 verify_single_file.log: \
