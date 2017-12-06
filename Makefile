@@ -20,6 +20,7 @@ VIRTUALENV ?= $(shell which virtualenv-3.5 || which virtualenv)
 all:
 
 .PHONY: \
+  check-TODO \
   check-recursive \
   clean-recursive \
   reset \
@@ -56,6 +57,12 @@ all:
 
 check: \
   check-recursive
+
+check-TODO: \
+  check-recursive
+	source venv/bin/activate ; \
+	  $(MAKE) -C tests/case_implementation_plaso_examples check-TODO ; \
+	deactivate
 
 check-recursive: \
   .setup_complete

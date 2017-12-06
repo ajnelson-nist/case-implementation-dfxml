@@ -15,6 +15,9 @@ SHELL = /bin/bash
 
 all:
 
+.PHONY: \
+  check-TODO
+
 # Retain inferred .dfxml files.
 #  C/o: https://www.gnu.org/software/make/manual/html_node/Chained-Rules.html
 .PRECIOUS: \
@@ -27,7 +30,7 @@ all:
 	touch $@
 
 %.dfxml: \
-  ../../deps/case-implementation-plaso/examples/%.json \
+  ../../deps/case-implementation-plaso/examples/% \
   ../../.setup_complete \
   ../../Objects.py \
   ../../case_to_dfxml.py \
@@ -35,14 +38,60 @@ all:
 	python ../../case_to_dfxml.py $< >(xmllint --format - > _$@)
 	mv _$@ $@
 
+#TODO These files have a problem parsing.
+check-TODO: \
+  android_calls.xml.dfxml.validates.log \
+  android_sms.xml.dfxml.validates.log \
+  lvm.xml.dfxml.validates.log \
+  mft.xml.dfxml.validates.log \
+  skype.xml.dfxml.validates.log \
+  tsk_volume_system.xml.dfxml.validates.log
+	@echo "INFO:Makefile:The check-TODO targets now pass and can be put back into place in the validates.log dependencies." >&2
+
+android_calls.validates.log: \
+  android_calls.json.dfxml.validates.log \
+  android_calls.ttl.dfxml.validates.log
+	touch $@
+
+android_sms.validates.log: \
+  android_sms.json.dfxml.validates.log \
+  android_sms.ttl.dfxml.validates.log
+	touch $@
+
+bz2.validates.log: \
+  bz2.json.dfxml.validates.log \
+  bz2.ttl.dfxml.validates.log \
+  bz2.xml.dfxml.validates.log
+	touch $@
+
 check: \
-  android_calls.dfxml.validates.log \
-  android_sms.dfxml.validates.log \
-  bz2.dfxml.validates.log \
-  lvm.dfxml.validates.log \
-  mft.dfxml.validates.log \
-  skype.dfxml.validates.log \
-  tsk_volume_system.dfxml.validates.log
+  android_calls.validates.log \
+  android_sms.validates.log \
+  bz2.validates.log \
+  lvm.validates.log \
+  mft.validates.log \
+  skype.validates.log \
+  tsk_volume_system.validates.log
 
 clean:
 	@rm -f *.dfxml *.log
+
+lvm.validates.log: \
+  lvm.json.dfxml.validates.log \
+  lvm.ttl.dfxml.validates.log
+	touch $@
+
+mft.validates.log: \
+  mft.json.dfxml.validates.log \
+  mft.ttl.dfxml.validates.log
+	touch $@
+
+skype.validates.log: \
+  skype.json.dfxml.validates.log \
+  skype.ttl.dfxml.validates.log
+	touch $@
+
+tsk_volume_system.validates.log: \
+  tsk_volume_system.json.dfxml.validates.log \
+  tsk_volume_system.ttl.dfxml.validates.log
+	touch $@
