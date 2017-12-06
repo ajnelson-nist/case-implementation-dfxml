@@ -61,7 +61,7 @@ check: \
 check-TODO: \
   check-recursive
 	source venv/bin/activate ; \
-	  $(MAKE) -C tests/case_implementation_plaso_examples check-TODO ; \
+	  $(MAKE) -C tests check-TODO ; \
 	deactivate
 
 check-recursive: \

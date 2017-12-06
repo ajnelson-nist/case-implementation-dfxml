@@ -21,9 +21,12 @@ all:
 	touch $@
 
 .PHONY: \
+  check-TODO \
   check-basic \
+  check-basic-TODO \
   check-case_examples \
   check-case_implementation_plaso_examples \
+  check-case_implementation_plaso_examples-TODO \
   clean-case_examples \
   clean-case_implementation_plaso_examples \
   clean-recursive
@@ -33,11 +36,18 @@ check: \
   check-case_implementation_plaso_examples
 	@echo "Unit tests pass!"
 
+check-TODO: \
+  check-basic-TODO \
+  check-case_implementation_plaso_examples-TODO
+
 check-basic: \
   empty.json \
   single_file_1.rdf \
   verify_single_file.log \
   verify_single_filesystem_single_file.log
+
+check-basic-TODO: \
+  verify_single_file_via_jsonld.log
 
 check-case_examples: \
   check-basic
@@ -46,6 +56,10 @@ check-case_examples: \
 check-case_implementation_plaso_examples: \
   check-basic
 	$(MAKE) -C case_implementation_plaso_examples check
+
+check-case_implementation_plaso_examples-TODO: \
+  check-case_implementation_plaso_examples
+	$(MAKE) -C case_implementation_plaso_examples check-TODO
 
 clean: \
   clean-recursive
@@ -83,6 +97,21 @@ single_file_0_2_deltas.dfxml: \
 	python make_differential_dfxml.py --retain-unchanged single_file_{0,2}.dfxml | xmllint --format - > _$@
 	mv _$@ $@
 
+single_file_0_json_2_deltas.dfxml: \
+  make_differential_dfxml.py \
+  single_file_2.json.dfxml.validates.log
+	rm -f _$@
+	python make_differential_dfxml.py --retain-unchanged single_file_0.dfxml single_file_2.json.dfxml | xmllint --format - > _$@
+	mv _$@ $@
+
+single_file_1.json: \
+  ../.setup_complete \
+  ../dfxml_to_case.py \
+  single_file_0.dfxml.validates.log
+	rm -f _$@
+	python ../dfxml_to_case.py --debug --output-format=json-ld single_file_0.dfxml _$@
+	mv _$@ $@
+
 single_file_1.rdf: \
   ../.setup_complete \
   ../dfxml_to_case.py \
@@ -104,6 +133,13 @@ single_file_2.dfxml: \
   single_file_1.ttl
 	rm -f _$@ __$@
 	python ../case_to_dfxml.py --debug single_file_1.ttl >(xmllint --format - > _$@)
+	mv _$@ $@
+
+single_file_2.json.dfxml: \
+  ../case_to_dfxml.py \
+  single_file_1.json
+	rm -f _$@ __$@
+	python ../case_to_dfxml.py --debug single_file_1.json >(xmllint --format - > _$@)
 	mv _$@ $@
 
 single_filesystem_single_file_0.dfxml: \
@@ -136,10 +172,19 @@ single_filesystem_single_file_2.dfxml: \
 	python ../case_to_dfxml.py --debug single_filesystem_single_file_1.ttl >(xmllint --format - > _$@)
 	mv _$@ $@
 
+# Verify a DFXML file that just lists a single file can translate into CASE and back via some format.
 verify_single_file.log: \
   single_file_0_2_deltas.dfxml.validates.log \
   verify_single_file.py
 	python verify_single_file.py single_file_0_2_deltas.dfxml
+	touch $@
+
+# Verify a DFXML file that just lists a single file can translate into CASE and back via JSON-LD.
+# This is a dependency of check-basic-TODO because at the time of this writing the CASE API currently doesn't read the JSON-LD output it generates.  The parse() method returns an empty graph.
+verify_single_file_via_jsonld.log: \
+  single_file_0_json_2_deltas.dfxml.validates.log \
+  verify_single_file.py
+	python verify_single_file.py single_file_0_json_2_deltas.dfxml
 	touch $@
 
 verify_single_filesystem_single_file.log: \
