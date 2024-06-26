@@ -3,7 +3,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:uco-core="https://ontology.unifiedcyberontology.org/uco/core/"
 >
-  <rdf:Description rdf:about="http://example.org/kb/Organization-8e53c674-8c15-5053-aba8-db2df58f869e">
+  <rdf:Description rdf:about="http://example.org/kb/Organization-e8246fc9-2241-5a29-a8aa-389c4d0f05e6">
     <rdf:type rdf:resource="https://ontology.unifiedcyberontology.org/uco/identity/Organization"/>
     <uco-core:name>Cyber Domain Ontology</uco-core:name>
   </rdf:Description>

@@ -2,6 +2,6 @@
 @prefix uco-core: <https://ontology.unifiedcyberontology.org/uco/core/> .
 @prefix uco-identity: <https://ontology.unifiedcyberontology.org/uco/identity/> .
 
-kb:Organization-10639c31-bef6-57b7-9747-71171b669844 a uco-identity:Organization ;
+kb:Organization-5c839924-31ca-59b5-a085-6264450d96af a uco-identity:Organization ;
     uco-core:name "Cyber Domain Ontology" .
 
