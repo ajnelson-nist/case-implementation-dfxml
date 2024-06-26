@@ -22,13 +22,50 @@ all: \
   .venv-pre-commit/var/.pre-commit-built.log
 
 .PHONY: \
+  check-TODO \
+  check-recursive \
   check-supply-chain \
   check-supply-chain-mypy \
-  check-supply-chain-pre-commit
+  check-supply-chain-pre-commit \
+  clean-recursive \
+  reset \
+  setup
+
+# Removing this flag file checks for added or removed submodules, but does not cause a submodule update to occur on submodules that have already been checked out at least once.
+.git_submodule_init: \
+  .gitmodules
+	git submodule sync
+	test -r deps/case/.git || \
+	  (git submodule init deps/case && git submodule update deps/case)
+	test -r deps/case-api-python/.git || \
+	  (git submodule init deps/case-api-python && git submodule update deps/case-api-python)
+	test -r deps/case-implementation-plaso/.git || \
+	  (git submodule init deps/case-implementation-plaso && git submodule update deps/case-implementation-plaso)
+	test -r deps/dfxml/.git || \
+	  (git submodule init deps/dfxml && git submodule update deps/dfxml)
+	test -r deps/dfxml_schema/.git || \
+	  (git submodule init deps/dfxml_schema && git submodule update deps/dfxml_schema)
+	touch $@
 
 .git_submodule_init.done.log: \
   .gitmodules
 	git submodule update --init
+	touch $@
+
+.setup_complete: \
+  deps/dfxml/setup.cfg
+	test -d venv || \
+	  $(PYTHON3) -m venv venv
+	test -r venv/lib/python3.*/site-packages/case-*.egg || \
+	  ( \
+	    source venv/bin/activate ; \
+	      pip install deps/case-api-python || exit $$? ; \
+	    deactivate \
+	  )
+	source venv/bin/activate \
+	  && pip install \
+	    --editable \
+	    deps/dfxml
 	touch $@
 
 # This virtual environment is meant to be built once and then persist, even through 'make clean'.
@@ -55,12 +92,26 @@ all: \
 	touch $@
 
 check: \
+  .venv-pre-commit/var/.pre-commit-built.log \
   check-supply-chain-mypy \
-  .venv-pre-commit/var/.pre-commit-built.log
+  check-recursive
 	$(MAKE) \
 	  PYTHON3=$(PYTHON3) \
 	  --directory tests \
 	  check
+
+check-TODO: \
+  check-recursive
+	source venv/bin/activate ; \
+	  $(MAKE) -C tests check-TODO ; \
+	deactivate
+
+check-recursive: \
+  .setup_complete \
+  check-supply-chain-mypy
+	source venv/bin/activate ; \
+	  $(MAKE) -C tests check ; \
+	deactivate
 
 # This target's dependencies potentially modify the working directory's Git state, so it is intentionally not a dependency of check.
 check-supply-chain: \
@@ -105,13 +156,30 @@ check-supply-chain-pre-commit: \
 	    "INFO:Makefile:pre-commit configuration can be updated.  It appears the update would not change file formatting." \
 	    >&2
 
-clean:
+clean: \
+  clean-recursive
 	@rm -rf \
 	  *.egg-info \
+	  __pycache__ \
 	  build \
 	  dist
+	@rm -f \
+	  .git_submodule_init.done.log
+
+clean-recursive:
 	@$(MAKE) \
 	  --directory tests \
 	  clean
-	@rm -f \
-	  .git_submodule_init.done.log
+
+deps/dfxml/setup.cfg: \
+  .git_submodule_init
+	touch -c $@
+	test -r $@
+
+reset: \
+  clean
+	@rm -rf .git_submodule_init .setup_complete venv
+
+setup: \
+  .setup_complete
+	@echo "Setup complete."

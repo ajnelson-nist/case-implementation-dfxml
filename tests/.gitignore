@@ -1,3 +1,8 @@
+*.dfxml
+*.json
+*.log
+*.rdf
+*.ttl
 .pytest_cache
 .venv.done.log
 .venv_minimal.done.log

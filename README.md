@@ -1,75 +1,66 @@
-# CASE Implementation Template: CLI Example
+# CASE/UCO DFXML implementation
 
 [![Continuous Integration](https://github.com/casework/CASE-Implementation-Template-Python-CLI/actions/workflows/ci.yml/badge.svg)](https://github.com/casework/CASE-Implementation-Template-Python-CLI/actions/workflows/ci.yml)
 ![CASE Version](https://img.shields.io/badge/CASE%20Version-1.3.0-green)
 
 _(Please see the [NIST disclaimer](#disclaimer).)_
 
-This template repository is provided for those looking to develop command-line utilities using ontologies within the [Cyber Domain Ontology](https://cyberdomainontology.org) ecosystem, particularly [CASE](https://caseontology.org) and [UCO](https://unifiedcyberontology.org).
+This repository implements translations between Digital Forensics XML ([DFXML](http://forensicswiki.org/wiki/Category:Digital_Forensics_XML)) and Cyber-investigation Analysis Standard Expression ([CASE](https://casework.github.io/case/)).
 
-This template repository provides a [Make](https://en.wikipedia.org/wiki/Make_%28software%29)-based test workflow used in some other CASE projects.  The workflow exercises this project as a command-line interface (CLI) application (under [`tests/cli/`](tests/cli/)), and as a package (under [`tests/package/`](tests/package/)).
 
-This is only one possible application development style, and templates are available to support other styles.  See for instance:
+## Caveats
 
-* [casework/CASE-Mapping-Template-Python](https://github.com/casework/CASE-Mapping-Template-Python), which demonstrates an approach based on constructing Python `dict`s and checking generated results afterwards for CASE conformance with the [CASE Validation Action](https://github.com/kchason/case-validation-action).
+This repository does not yet validate generated CASE data against CASE and the [Unified Cyber Ontology](https://ucoproject.github.io/uco/).
 
-Testing procedures run in _this_ repository are:
 
-* _GitHub Actions_: [Workflows](.github/workflows/) are defined to run testing as they would be run in a local command-line environment, reviewing on pushes and pull requests to certain branches.
-* _Supply chain review_: [One workflow](.github/workflows/supply-chain.yml) checks dependencies on a schedule, confirming pinned dependencies are the latest, and loosely-pinned dependencies do not impact things like type review.
-* _Type review_: `mypy --strict` reviews the package source tree and the tests directory.
-* _Code style_: `pre-commit` reviews code patches in Continuous Integration testing and in local development.  Running `make` will install `pre-commit` in a special virtual environment dedicated to the cloned repository instance.
-* _Doctests_: Module docstrings' inlined tests are run with `pytest`.
-* _CASE validation_: Unit tests that generate CASE graph files are written to run `case_validate` before considering the file "successfully" built.
-* _Editable package installation_: The test suite installs the package in an "editable" mode into the virtual environment under `tests/venv/`.  Activating the virtual environment (e.g. for Bash users, running `source tests/venv/bin/activate` from the repository's top source directory) enables "live code" testing.
-* _Parallel Make runs_: Tests based on `make` have dependencies specified in a manner that enables `make --jobs` to run testing in parallel.
-* _Directory-local Make runs_: The Makefiles are written to run regardless of the present working directory within the top source directory or the [`tests/`](tests/) directory, assuming `make check` has been run from the top source directory at least once.  If a test is failing, `cd`'ing into that test's directory and running `make check` should reproduce the failure quickly and focus development effort.
+## Installation
+
+This repository runs as in-place scripts.  It depends on the [CASE Python API](https://github.com/casework/case-api-python) being installed according to that repository's README, which is doable in a virtual environment if you do not have (or wish to use) administrator priveleges.
+
+You can run "`make setup`" to create a usable virtual environment under `./venv`.  This will require networking to install any dependencies not yet cached by `pip`.
 
 
 ## Usage
 
-To use the template, push the "Use this template" button on GitHub, and adapt files as suits your new project's needs.  The README should be revised at least from its top to the "Versioning" section.  Source files should be renamed and revised, and any other files with a `TODO` within it should be adjusted.
+Translating DFXML to CASE:
 
-After any revisions, running `make check` (or `make -j check`) from the top source directory should have unit tests continue to pass.
+    python dfxml_to_case.py input.dfxml output.case
 
-_Below this line is sample text to use and adapt for your project.  Most text above this line is meant to document the template, rather than projects using the template._
+(`dfxml_to_case.py` allows output format selection with `--output-format`.  Default is TTL.)
 
-To install this software, clone this repository, and run `pip install .` from within this directory.  (You might want to do this in a virtual environment.)
+Translating CASE to DFXML:
 
-This provides a standalone command:
+    python case_to_dfxml.py input.case output.dfxml
 
-```bash
-case_cli_example output.rdf
-```
+If pretty-printing the XML output is desired, you may want to pipe through `xmllint`:
 
-The tests build several examples of output for the command line mode, under [`tests/cli`](tests/cli/).
-
-The installation also provides a package to import:
-
-```python
-import case_cli_example
-help(case_cli_example.foo)
-```
+    python case_to_dfxml.py input.case >(xmllint --format - > output.dfxml)
 
 
-## Versioning
+### Testing
 
-This project follows [SEMVER 2.0.0](https://semver.org/) where versions are declared.
+There is a set of unit tests that checks round-trip conversion between the formats.  Note that DFXML and CASE do not have the same conceptual scope, so the tests only cover translation in the context of storage system metadata.
+
+Unit tests run with `make check`, without requiring administrator privileges (though may require networking as under the "Installation" section).
 
 
-## Make targets
+#### Make targets
 
 Some `make` targets are defined for this repository:
+
 * `all` - Installs `pre-commit` for this cloned repository instance.
 * `check` - Run unit tests.  *NOTE*: The tests entail an installation of this project's source tree, including prerequisites downloaded from PyPI.
 * `clean` - Remove test build files.
 
 
+## Versioning
+
+This repository follows [SEMVER](https://semver.org/) conventions on a per-script basis.  Version 0.1.0 will start providing a stable API, but currently awaits a CASE validation mechanism.
+
+
 ## Licensing
 
-This repository is licensed under the Apache 2.0 License. See [LICENSE](LICENSE).
-
-Portions of this repository contributed by NIST are governed by the [NIST Software Licensing Statement](THIRD_PARTY_LICENSES.md#nist-software-licensing-statement).
+Portions of this repository contributed by NIST are governed by the [NIST Software Licensing Statement](LICENSE#nist-software-licensing-statement).
 
 
 ## Disclaimer

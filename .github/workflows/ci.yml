@@ -38,6 +38,11 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+    - name:  Install xmllint on ubuntu
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt update
+        sudo apt install --yes libxml2-utils
     - name: Pre-commit Checks
       run: |
         pip -q install pre-commit
