@@ -2,9 +2,7 @@
 *.pyc
 *.swp
 .DS_Store
-.git_submodule_init
 .git_submodule_init.done.log
-.setup_complete
 .venv-pre-commit
 __pycache__
 build
