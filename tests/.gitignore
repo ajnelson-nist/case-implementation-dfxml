@@ -1,6 +1,5 @@
 *.dfxml
 *.json
-*.log
 *.rdf
 *.ttl
 .pytest_cache
@@ -9,3 +8,4 @@
 _*
 venv
 venv_minimal
+verify_*.log

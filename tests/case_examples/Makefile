@@ -15,6 +15,8 @@ SHELL = /bin/bash
 
 top_srcdir := ../..
 
+dfxml_xsd := $(top_srcdir)/deps/dfxml_schema/dfxml.xsd
+
 dfxml_top_srcdir := $(top_srcdir)/deps/dfxml
 
 objects_py_dependencies := \
@@ -32,20 +34,22 @@ all:
 .PRECIOUS: \
   %.dfxml
 
-%.dfxml.validates.log: \
-  %.dfxml \
-  ../../deps/dfxml_schema/dfxml.xsd
-	xmllint --schema ../../deps/dfxml_schema/dfxml.xsd $< >/dev/null
-	touch $@
-
 %.dfxml: \
   ../../deps/case/examples/%.json \
+  $(dfxml_xsd) \
   $(case_to_dfxml_dependencies) \
   ../.venv.done.log
+	rm -f __$@ _$@
 	source ../venv/bin/activate \
 	  && python ../../case_to_dfxml.py \
 	    $< \
-	    >(xmllint --format - > _$@)
+	    __$@
+	xmllint \
+	  --format \
+	  --schema $(dfxml_xsd) \
+	  __$@ \
+	  > _$@
+	rm __$@
 	mv _$@ $@
 
 # NOTE: Some example files are purposefully omitted because they include design comments that Python's JSON library cannot parse.  These files are:
@@ -53,18 +57,19 @@ all:
 #  sms_and_contacts.json
 
 check: \
-  Oresteia.dfxml.validates.log \
-  accounts.dfxml.validates.log \
-  bulk_extractor_forensic_path.dfxml.validates.log \
-  call_log.dfxml.validates.log \
-  device.dfxml.validates.log \
-  exif_data.dfxml.validates.log \
-  file.dfxml.validates.log \
-  forensic_lifecycle.dfxml.validates.log \
-  location.dfxml.validates.log \
-  message.dfxml.validates.log \
-  multipart_file.dfxml.validates.log \
-  raw_data.dfxml.validates.log
+  Oresteia.dfxml \
+  accounts.dfxml \
+  bulk_extractor_forensic_path.dfxml \
+  call_log.dfxml \
+  device.dfxml \
+  exif_data.dfxml \
+  file.dfxml \
+  forensic_lifecycle.dfxml \
+  location.dfxml \
+  message.dfxml \
+  multipart_file.dfxml \
+  raw_data.dfxml
 
 clean:
-	@rm -f *.dfxml *.log
+	@rm -f \
+	  *.dfxml

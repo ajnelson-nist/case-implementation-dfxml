@@ -15,6 +15,8 @@ SHELL = /bin/bash
 
 top_srcdir := ../..
 
+dfxml_xsd := $(top_srcdir)/deps/dfxml_schema/dfxml.xsd
+
 dfxml_top_srcdir := $(top_srcdir)/deps/dfxml
 
 objects_py_dependencies := \
@@ -35,47 +37,49 @@ all:
 .PRECIOUS: \
   %.dfxml
 
-%.dfxml.validates.log: \
-  %.dfxml \
-  ../../deps/dfxml_schema/dfxml.xsd
-	xmllint --schema ../../deps/dfxml_schema/dfxml.xsd $< >/dev/null
-	touch $@
-
 %.dfxml: \
   ../../deps/case-implementation-plaso/examples/% \
+  $(dfxml_xsd) \
   $(case_to_dfxml_dependencies) \
   ../.venv.done.log
+	rm -f __$@ _$@
 	source ../venv/bin/activate \
 	  && python ../../case_to_dfxml.py \
 	    $< \
-	    >(xmllint --format - > _$@)
+	    __$@
+	xmllint \
+	  --format \
+	  --schema $(dfxml_xsd) \
+	  __$@ \
+	  > _$@
+	rm __$@
 	mv _$@ $@
 
 #TODO These files have a problem parsing.  Issue filed here:
 #  https://github.com/casework/case-implementation-plaso/issues/2
 check-TODO: \
-  android_calls.xml.dfxml.validates.log \
-  android_sms.xml.dfxml.validates.log \
-  lvm.xml.dfxml.validates.log \
-  mft.xml.dfxml.validates.log \
-  skype.xml.dfxml.validates.log \
-  tsk_volume_system.xml.dfxml.validates.log
+  android_calls.xml.dfxml \
+  android_sms.xml.dfxml \
+  lvm.xml.dfxml \
+  mft.xml.dfxml \
+  skype.xml.dfxml \
+  tsk_volume_system.xml
 	@echo "INFO:Makefile:The check-TODO targets now pass and can be put back into place in the validates.log dependencies." >&2
 
 android_calls.validates.log: \
-  android_calls.json.dfxml.validates.log \
-  android_calls.ttl.dfxml.validates.log
+  android_calls.json.dfxml \
+  android_calls.ttl.dfxml
 	touch $@
 
 android_sms.validates.log: \
-  android_sms.json.dfxml.validates.log \
-  android_sms.ttl.dfxml.validates.log
+  android_sms.json.dfxml \
+  android_sms.ttl.dfxml
 	touch $@
 
 bz2.validates.log: \
-  bz2.json.dfxml.validates.log \
-  bz2.ttl.dfxml.validates.log \
-  bz2.xml.dfxml.validates.log
+  bz2.json.dfxml \
+  bz2.ttl.dfxml \
+  bz2.xml.dfxml
 	touch $@
 
 check: \
@@ -88,24 +92,25 @@ check: \
   tsk_volume_system.validates.log
 
 clean:
-	@rm -f *.dfxml *.log
+	@rm -f \
+	  *.dfxml
 
 lvm.validates.log: \
-  lvm.json.dfxml.validates.log \
-  lvm.ttl.dfxml.validates.log
+  lvm.json.dfxml \
+  lvm.ttl.dfxml
 	touch $@
 
 mft.validates.log: \
-  mft.json.dfxml.validates.log \
-  mft.ttl.dfxml.validates.log
+  mft.json.dfxml \
+  mft.ttl.dfxml
 	touch $@
 
 skype.validates.log: \
-  skype.json.dfxml.validates.log \
-  skype.ttl.dfxml.validates.log
+  skype.json.dfxml \
+  skype.ttl.dfxml
 	touch $@
 
 tsk_volume_system.validates.log: \
-  tsk_volume_system.json.dfxml.validates.log \
-  tsk_volume_system.ttl.dfxml.validates.log
+  tsk_volume_system.json.dfxml \
+  tsk_volume_system.ttl.dfxml
 	touch $@

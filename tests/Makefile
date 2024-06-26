@@ -20,6 +20,8 @@ PYTHON3 ?= python3
 
 top_srcdir := $(shell cd .. ; pwd)
 
+dfxml_xsd := $(top_srcdir)/deps/dfxml_schema/dfxml.xsd
+
 dfxml_top_srcdir := $(top_srcdir)/deps/dfxml
 
 objects_py_dependencies := \
@@ -40,11 +42,6 @@ dfxml_to_case_dependencies := \
 
 # Dependencies are listed here in desired execution-progression order.
 all:
-
-%.dfxml.validates.log: \
-  %.dfxml
-	xmllint --schema ../deps/dfxml_schema/dfxml.xsd $< >/dev/null
-	touch $@
 
 .PHONY: \
   check-TODO \
@@ -156,7 +153,6 @@ clean: \
 	@rm -f \
 	  *dfxml \
 	  *json \
-	  *log \
 	  *pyc \
 	  *rdf \
 	  *ttl \
@@ -185,47 +181,60 @@ empty.json: \
 	mv _$@ $@
 
 single_file_0.dfxml: \
+  $(dfxml_xsd) \
   $(objects_py_dependencies) \
   empty.json \
   single_file_0_dfxml.py
-	rm -f _$@ __$@
+	rm -f __$@ _$@
 	source venv/bin/activate \
 	  && python single_file_0_dfxml.py \
-	    >(xmllint --format - > _$@)
+	    __$@
+	xmllint \
+	  --format \
+	  --schema $(dfxml_xsd) \
+	  __$@ \
+	  > _$@
+	rm __$@
 	mv _$@ $@
 
 single_file_0_2_deltas.dfxml: \
   $(make_differential_dfxml_dependencies) \
-  single_file_2.dfxml.validates.log
-	rm -f _$@
+  single_file_2.dfxml
+	rm -f __$@ _$@
 	source venv/bin/activate \
 	  && make_differential_dfxml \
 	    --retain-unchanged \
 	    single_file_{0,2}.dfxml \
-	    | xmllint \
-	      --format \
-	      - \
-	      > _$@
+	    > __$@
+	xmllint \
+	  --format \
+	  --schema $(dfxml_xsd) \
+	  __$@ \
+	  > _$@
+	rm __$@
 	mv _$@ $@
 
 single_file_0_json_2_deltas.dfxml: \
   $(make_differential_dfxml_dependencies) \
-  single_file_2.json.dfxml.validates.log
-	rm -f _$@
+  single_file_2.json.dfxml
+	rm -f __$@ _$@
 	source venv/bin/activate \
 	  && make_differential_dfxml \
 	    --retain-unchanged \
 	    single_file_0.dfxml \
 	    single_file_2.json.dfxml \
-	    | xmllint \
-	      --format \
-	      - \
-	      > _$@
+	    > __$@
+	xmllint \
+	  --format \
+	  --schema $(dfxml_xsd) \
+	  __$@ \
+	  > _$@
+	rm __$@
 	mv _$@ $@
 
 single_file_1.json: \
   $(dfxml_to_case_dependencies) \
-  single_file_0.dfxml.validates.log
+  single_file_0.dfxml
 	rm -f _$@
 	source venv/bin/activate \
 	  && python ../dfxml_to_case.py \
@@ -237,7 +246,7 @@ single_file_1.json: \
 
 single_file_1.rdf: \
   $(dfxml_to_case_dependencies) \
-  single_file_0.dfxml.validates.log
+  single_file_0.dfxml
 	rm -f _$@
 	source venv/bin/activate \
 	  && python ../dfxml_to_case.py \
@@ -249,7 +258,7 @@ single_file_1.rdf: \
 
 single_file_1.ttl: \
   $(dfxml_to_case_dependencies) \
-  single_file_0.dfxml.validates.log
+  single_file_0.dfxml
 	rm -f _$@
 	source venv/bin/activate \
 	  && python ../dfxml_to_case.py \
@@ -262,53 +271,75 @@ single_file_1.ttl: \
 single_file_2.dfxml: \
   $(case_to_dfxml_dependencies) \
   single_file_1.ttl
-	rm -f _$@ __$@
+	rm -f __$@ _$@
 	source venv/bin/activate \
 	  && python ../case_to_dfxml.py \
 	    --debug \
 	    single_file_1.ttl \
-	    >(xmllint --format - > _$@)
+	    __$@
+	xmllint \
+	  --format \
+	  --schema $(dfxml_xsd) \
+	  __$@ \
+	  > _$@
+	rm __$@
 	mv _$@ $@
 
 single_file_2.json.dfxml: \
   $(case_to_dfxml_dependencies) \
   single_file_1.json
-	rm -f _$@ __$@
+	rm -f __$@ _$@
 	source venv/bin/activate \
 	  && python ../case_to_dfxml.py \
 	    --debug \
 	    single_file_1.json \
-	    >(xmllint --format - > _$@)
+	    __$@
+	xmllint \
+	  --format \
+	  --schema $(dfxml_xsd) \
+	  __$@ \
+	  > _$@
+	rm __$@
 	mv _$@ $@
 
 single_filesystem_single_file_0.dfxml: \
+  $(dfxml_xsd) \
   $(objects_py_dependencies) \
   empty.json \
   single_filesystem_single_file_0_dfxml.py
-	rm -f _$@ __$@
+	rm -f __$@ _$@
 	source venv/bin/activate \
 	  && python single_filesystem_single_file_0_dfxml.py \
-	    >(xmllint --format - > _$@)
+	    __$@
+	xmllint \
+	  --format \
+	  --schema $(dfxml_xsd) \
+	  __$@ \
+	  > _$@
+	rm __$@
 	mv _$@ $@
 
 single_filesystem_single_file_0_2_deltas.dfxml: \
   $(make_differential_dfxml_dependencies) \
-  single_filesystem_single_file_2.dfxml.validates.log
-	rm -f _$@
+  single_filesystem_single_file_2.dfxml
+	rm -f __$@ _$@
 	source venv/bin/activate \
 	  && make_differential_dfxml \
 	    --debug \
 	    --retain-unchanged \
 	    single_filesystem_single_file_{0,2}.dfxml \
-	    | xmllint \
-	      --format \
-	      - \
-	      > _$@
+	    > __$@
+	xmllint \
+	  --format \
+	  --schema $(dfxml_xsd) \
+	  __$@ \
+	  > _$@
+	rm __$@
 	mv _$@ $@
 
 single_filesystem_single_file_1.ttl: \
   $(dfxml_to_case_dependencies) \
-  single_filesystem_single_file_0.dfxml.validates.log
+  single_filesystem_single_file_0.dfxml
 	rm -f _$@
 	source venv/bin/activate \
 	  && python ../dfxml_to_case.py \
@@ -321,17 +352,23 @@ single_filesystem_single_file_1.ttl: \
 single_filesystem_single_file_2.dfxml: \
   $(case_to_dfxml_dependencies) \
   single_filesystem_single_file_1.ttl
-	rm -f _$@ __$@
+	rm -f __$@ _$@
 	source venv/bin/activate \
 	  && python ../case_to_dfxml.py \
 	    --debug \
 	    single_filesystem_single_file_1.ttl \
-	    >(xmllint --format - > _$@)
+	    __$@
+	xmllint \
+	  --format \
+	  --schema $(dfxml_xsd) \
+	  __$@ \
+	  > _$@
+	rm __$@
 	mv _$@ $@
 
 # Verify a DFXML file that just lists a single file can translate into CASE and back via some format.
 verify_single_file.log: \
-  single_file_0_2_deltas.dfxml.validates.log \
+  single_file_0_2_deltas.dfxml \
   verify_single_file.py
 	source venv/bin/activate \
 	  && python verify_single_file.py \
@@ -341,7 +378,7 @@ verify_single_file.log: \
 # Verify a DFXML file that just lists a single file can translate into CASE and back via JSON-LD.
 # This is a dependency of check-basic-TODO because at the time of this writing the CASE API currently doesn't read the JSON-LD output it generates.  The parse() method returns an empty graph.
 verify_single_file_via_jsonld.log: \
-  single_file_0_json_2_deltas.dfxml.validates.log \
+  single_file_0_json_2_deltas.dfxml \
   verify_single_file.py
 	source venv/bin/activate \
 	  && python verify_single_file.py \
@@ -349,7 +386,7 @@ verify_single_file_via_jsonld.log: \
 	touch $@
 
 verify_single_filesystem_single_file.log: \
-  single_filesystem_single_file_0_2_deltas.dfxml.validates.log \
+  single_filesystem_single_file_0_2_deltas.dfxml \
   verify_single_filesystem_single_file.py
 	source venv/bin/activate \
 	  && python verify_single_file.py \
