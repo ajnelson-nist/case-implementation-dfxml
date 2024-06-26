@@ -13,9 +13,7 @@
 
 SHELL = /bin/bash
 
-PYTHON ?= python3.5
-
-VIRTUALENV ?= $(shell which virtualenv-3.5 || which virtualenv)
+PYTHON3 ?= python3
 
 all:
 
@@ -43,16 +41,19 @@ all:
 	touch $@
 
 .setup_complete: \
-  .git_submodule_init
-	test ! -z $(VIRTUALENV) || ( echo "virtualenv not found; please install." >&2 ; exit 1 )
+  deps/dfxml/setup.cfg
 	test -d venv || \
-	  $(VIRTUALENV) --python=$(PYTHON) --system-site-packages venv
-	test -r venv/lib/python3.5/site-packages/case-*.egg || \
+	  $(PYTHON3) -m venv venv
+	test -r venv/lib/python3.*/site-packages/case-*.egg || \
 	  ( \
 	    source venv/bin/activate ; \
 	      pip install deps/case-api-python || exit $$? ; \
 	    deactivate \
 	  )
+	source venv/bin/activate \
+	  && pip install \
+	    --editable \
+	    deps/dfxml
 	touch $@
 
 check: \
@@ -76,6 +77,11 @@ clean: \
 
 clean-recursive:
 	@$(MAKE) -C tests clean
+
+deps/dfxml/setup.cfg: \
+  .git_submodule_init
+	touch -c $@
+	test -r $@
 
 reset: \
   clean

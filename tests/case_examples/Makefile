@@ -13,6 +13,18 @@
 
 SHELL = /bin/bash
 
+top_srcdir := ../..
+
+dfxml_top_srcdir := $(top_srcdir)/deps/dfxml
+
+objects_py_dependencies := \
+  $(dfxml_top_srcdir)/dfxml/__init__.py \
+  $(dfxml_top_srcdir)/dfxml/objects.py
+
+case_to_dfxml_dependencies := \
+  $(objects_py_dependencies) \
+  $(top_srcdir)/case_to_dfxml.py
+
 all:
 
 # Retain inferred .dfxml files.
@@ -28,10 +40,8 @@ all:
 
 %.dfxml: \
   ../../deps/case/examples/%.json \
-  ../../.setup_complete \
-  ../../Objects.py \
-  ../../case_to_dfxml.py \
-  ../../dfxml.py
+  $(case_to_dfxml_dependencies) \
+  ../../.setup_complete
 	python ../../case_to_dfxml.py $< >(xmllint --format - > _$@)
 	mv _$@ $@
 

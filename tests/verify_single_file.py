@@ -18,7 +18,7 @@ import os
 
 _logger = logging.getLogger(os.path.basename(__file__))
 
-import Objects
+from dfxml import objects as Objects
 
 def main():
     fileobject_count = 0

@@ -22,7 +22,7 @@ _logger = logging.getLogger(os.path.basename(__file__))
 
 import rdflib.plugins.sparql
 
-import Objects
+from dfxml import objects as Objects
 
 def main():
     if args.input_format:

@@ -25,7 +25,7 @@ _logger = logging.getLogger(os.path.basename(__file__))
 
 import rdflib
 
-import Objects
+from dfxml import objects as Objects
 import case
 
 def fileobject_to_trace(case_document, fobj):

@@ -15,7 +15,7 @@ __version__ = "0.1.0"
 
 import hashlib
 
-import Objects
+from dfxml import objects as Objects
 
 def main():
     dobj = Objects.DFXMLObject(version="1.1.1")
