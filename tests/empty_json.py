@@ -15,13 +15,16 @@ __version__ = "1.0.0"
 
 import case
 
+
 def main():
     document = case.Document()
 
-    document.serialize(format='json-ld', destination=args.output_json)
+    document.serialize(format="json-ld", destination=args.output_json)
+
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("output_json")
     args = parser.parse_args()

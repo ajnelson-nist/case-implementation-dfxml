@@ -16,13 +16,14 @@ __version__ = "0.1.0"
 import logging
 import os
 
+from dfxml import objects as Objects
+
 _logger = logging.getLogger(os.path.basename(__file__))
 
-from dfxml import objects as Objects
 
 def main():
     fileobject_count = 0
-    for (event, obj) in Objects.iterparse(args.in_dfxml):
+    for event, obj in Objects.iterparse(args.in_dfxml):
         if event != "end":
             continue
         if not isinstance(obj, Objects.FileObject):
@@ -34,13 +35,20 @@ def main():
             raise ValueError("A file was lost in translation.")
         if len(obj.diffs) > 0:
             for diff in obj.diffs:
-                _logger.info("%s: %r -> %r." % (diff, getattr(obj, diff), getattr(obj.original_fileobject, diff)))
-            raise ValueError("Information changed translating between DFXML, CASE, and back.")
+                _logger.info(
+                    "%s: %r -> %r."
+                    % (diff, getattr(obj, diff), getattr(obj.original_fileobject, diff))
+                )
+            raise ValueError(
+                "Information changed translating between DFXML, CASE, and back."
+            )
     if fileobject_count == 0:
         raise ValueError("No files emitted.")
 
+
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", action="store_true")
     parser.add_argument("in_dfxml")

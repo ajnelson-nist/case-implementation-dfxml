@@ -21,19 +21,19 @@ __version__ = "0.0.2"
 import logging
 import os
 
+import case
+import rdflib
+from dfxml import objects as Objects
+
 _logger = logging.getLogger(os.path.basename(__file__))
 
-import rdflib
-
-from dfxml import objects as Objects
-import case
 
 def fileobject_to_trace(case_document, fobj):
     f = case_document.create_uco_object("Trace")
 
     # pbd: Property bundle dictionary. Recycled variable name.
 
-    #TODO: Type the date times as xsd:datetime.
+    # TODO: Type the date times as xsd:datetime.
     pbd = dict()
     if fobj.filename:
         pbd["filePath"] = fobj.filename
@@ -50,7 +50,7 @@ def fileobject_to_trace(case_document, fobj):
 
     pbd = dict()
     any_hashes = None
-    if not fobj.filesize is None:
+    if fobj.filesize is not None:
         pbd["sizeInBytes"] = fobj.filesize
     if fobj.md5 or fobj.sha1 or fobj.sha256:
         any_hashes = True
@@ -62,33 +62,35 @@ def fileobject_to_trace(case_document, fobj):
     if cd_pb and any_hashes:
         if fobj.md5:
             hash_pb = case_document.create_hash("MD5", fobj.md5)
-            cd_pb.add('hash', hash_pb)
+            cd_pb.add("hash", hash_pb)
         if fobj.sha1:
             hash_pb = case_document.create_hash("SHA1", fobj.sha1)
-            cd_pb.add('hash', hash_pb)
+            cd_pb.add("hash", hash_pb)
         if fobj.sha256:
             hash_pb = case_document.create_hash("SHA256", fobj.sha256)
-            cd_pb.add('hash', hash_pb)
+            cd_pb.add("hash", hash_pb)
     return f
+
 
 def volumeobject_to_trace(case_document, vobj):
     v = case_document.create_uco_object("Trace")
     pbd = dict()
     if vobj.ftype_str:
         # Special-case some file systems that are spelled differently in CASE; default to uppercase of DFXML's value.
-        pbd["fileSystemType"] = {
-          "7z": "SevenZ"
-        }.get(vobj.ftype_str) or vobj.ftype_str.upper()
-    if not vobj.partition_offset is None:
+        pbd["fileSystemType"] = {"7z": "SevenZ"}.get(
+            vobj.ftype_str
+        ) or vobj.ftype_str.upper()
+    if vobj.partition_offset is not None:
         pbd["partitionOffset"] = vobj.partition_offset
     if len(pbd) > 0:
         v.create_property_bundle("FileSystem", **pbd)
     return v
 
+
 def main():
     case_document = case.Document()
     trace_object_stack = []
-    for (event, obj) in Objects.iterparse(args.in_dfxml):
+    for event, obj in Objects.iterparse(args.in_dfxml):
         if event == "start":
             if isinstance(obj, Objects.VolumeObject):
                 trace = volumeobject_to_trace(case_document, obj)
@@ -100,23 +102,25 @@ def main():
                 trace = fileobject_to_trace(case_document, obj)
                 if len(trace_object_stack) > 0:
                     # Create a containment relationship.
-                    r = case_document.create_uco_object(
-                      "Relationship",
-                      isDirectional=True,
-                      kindOfRelationship="contained-within",
-                      source=rdflib.URIRef(trace.uri),
-                      target=rdflib.URIRef(trace_object_stack[-1].uri)
+                    _ = case_document.create_uco_object(
+                        "Relationship",
+                        isDirectional=True,
+                        kindOfRelationship="contained-within",
+                        source=rdflib.URIRef(trace.uri),
+                        target=rdflib.URIRef(trace_object_stack[-1].uri),
                     )
-                    #_logger.debug("Container: %r." % trace_object_stack[-1])
-                    #_logger.debug("Containee: %r." % trace)
-                    #_logger.debug("dir(Containee): %r." % dir(trace))
-                    #_logger.debug("Container.uri: %r." % rdflib.URIRef(trace_object_stack[-1].uri))
-                    #_logger.debug("Containee.uri: %r." % rdflib.URIRef(trace.uri))
+                    # _logger.debug("Container: %r." % trace_object_stack[-1])
+                    # _logger.debug("Containee: %r." % trace)
+                    # _logger.debug("dir(Containee): %r." % dir(trace))
+                    # _logger.debug("Container.uri: %r." % rdflib.URIRef(trace_object_stack[-1].uri))
+                    # _logger.debug("Containee.uri: %r." % rdflib.URIRef(trace.uri))
 
     case_document.serialize(format=args.output_format, destination=args.out_file)
 
+
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", action="store_true")
     parser.add_argument("--output-format", default="ttl")

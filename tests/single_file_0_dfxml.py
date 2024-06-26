@@ -17,6 +17,7 @@ import hashlib
 
 from dfxml import objects as Objects
 
+
 def main():
     dobj = Objects.DFXMLObject(version="1.1.1")
 
@@ -48,8 +49,10 @@ def main():
     with open(args.out_dfxml, "w") as out_fh:
         dobj.print_dfxml(output_fh=out_fh)
 
+
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("out_dfxml")
     args = parser.parse_args()

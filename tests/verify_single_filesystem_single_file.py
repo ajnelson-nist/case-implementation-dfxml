@@ -16,21 +16,24 @@ __version__ = "0.1.0"
 import logging
 import os
 
+import Objects
+
 _logger = logging.getLogger(os.path.basename(__file__))
 
-import Objects
 
 def main():
     volumeobject_count = 0
     fileobject_count = 0
-    for (event, obj) in Objects.iterparse(args.in_dfxml):
+    for event, obj in Objects.iterparse(args.in_dfxml):
         if event != "end":
             continue
         if isinstance(obj, Objects.VolumeObject):
             volumeobject_count += 1
             if len(obj.annos) > 0:
                 _logger.info("obj.annos: %r." % obj.annos)
-                raise ValueError("Properties of the file system changed in the round trip.")
+                raise ValueError(
+                    "Properties of the file system changed in the round trip."
+                )
             continue
         if not isinstance(obj, Objects.FileObject):
             continue
@@ -41,15 +44,22 @@ def main():
             raise ValueError("A file was lost in translation.")
         if len(obj.diffs) > 0:
             for diff in obj.diffs:
-                _logger.info("%s: %r -> %r." % (diff, getattr(obj, diff), getattr(obj.original_fileobject, diff)))
-            raise ValueError("Information changed translating between DFXML, CASE, and back.")
+                _logger.info(
+                    "%s: %r -> %r."
+                    % (diff, getattr(obj, diff), getattr(obj.original_fileobject, diff))
+                )
+            raise ValueError(
+                "Information changed translating between DFXML, CASE, and back."
+            )
     if volumeobject_count == 0:
         raise ValueError("No file systems emitted.")
     if fileobject_count == 0:
         raise ValueError("No files emitted.")
 
+
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", action="store_true")
     parser.add_argument("in_dfxml")

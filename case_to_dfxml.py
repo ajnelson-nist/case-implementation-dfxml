@@ -18,11 +18,11 @@ import logging
 import os
 import sys
 
+import rdflib.plugins.sparql
+from dfxml import objects as Objects
+
 _logger = logging.getLogger(os.path.basename(__file__))
 
-import rdflib.plugins.sparql
-
-from dfxml import objects as Objects
 
 def main():
     if args.input_format:
@@ -30,11 +30,7 @@ def main():
     else:
         # Guess format from input extension.
         input_ext = os.path.splitext(args.in_file)[1][1:]
-        input_format = {
-          "json":"json-ld",
-          "ttl":"ttl",
-          "xml":"xml"
-        }[input_ext]
+        input_format = {"json": "json-ld", "ttl": "ttl", "xml": "xml"}[input_ext]
     g = rdflib.Graph()
     g.parse(args.in_file, format=input_format)
 
@@ -45,17 +41,20 @@ def main():
     dobj.program_version = __version__
     dobj.command_line = " ".join(sys.argv)
     dobj.dc["type"] = "CASE transcription"
-    dobj.add_creator_library("Python", ".".join(map(str, sys.version_info[0:3]))) #A bit of a bend, but gets the major version information out.
+    dobj.add_creator_library(
+        "Python", ".".join(map(str, sys.version_info[0:3]))
+    )  # A bit of a bend, but gets the major version information out.
     dobj.add_creator_library("Objects.py", Objects.__version__)
     dobj.add_creator_library("dfxml.py", Objects.dfxml.__version__)
 
-    nsdict = {k:v for (k,v) in g.namespace_manager.namespaces()}
+    nsdict = {k: v for (k, v) in g.namespace_manager.namespaces()}
 
     # Key: UUID in the CASE graph.
     # Value: DFXML Object with an 'append' method.
     uuid_to_container = dict()
     uuid_to_container[""] = dobj
-    filesystem_query = rdflib.plugins.sparql.prepareQuery("""\
+    filesystem_query = rdflib.plugins.sparql.prepareQuery(
+        """\
 SELECT ?trace ?fileSystemType ?partitionOffset
 WHERE
 {
@@ -73,15 +72,17 @@ WHERE
     ?propertyBundleFileSystem case:partitionOffset ?partitionOffset .
   }
 }
-""", initNs=nsdict)
+""",
+        initNs=nsdict,
+    )
     filesystem_results = g.query(filesystem_query)
     for filesystem_result in filesystem_results:
         (l_uuid, l_ftype_str, l_partition_offset) = filesystem_result
         fsobj = Objects.VolumeObject()
         if l_ftype_str:
-            #File system names are lowercased in DFXML.
+            # File system names are lowercased in DFXML.
             fsobj.ftype_str = l_ftype_str.toPython().lower()
-        if not l_partition_offset is None:
+        if l_partition_offset is not None:
             fsobj.partition_offset = l_partition_offset.toPython()
         uuid_to_container[l_uuid.toPython()] = fsobj
         dobj.append(fsobj)
@@ -90,7 +91,8 @@ WHERE
 
     # Group UUIDs of file traces by their containing file system's UUID (empty string if file system UUID is absent).
     fsobj_uuid_to_fobj_uuid_set = collections.defaultdict(set)
-    fsobj_containee_results = g.query("""\
+    fsobj_containee_results = g.query(
+        """\
 SELECT ?fstrace ?ftrace
 WHERE
 {
@@ -111,16 +113,18 @@ WHERE
     ?propertyBundleFileSystem a case:FileSystem .
   }
 }
-""")
+"""
+    )
     for fsobj_containee_result in fsobj_containee_results:
         (l_fs_uuid, l_f_uuid) = fsobj_containee_result
         f_uuid = l_f_uuid.toPython()
         fs_uuid = "" if l_fs_uuid is None else l_fs_uuid.toPython()
         fsobj_uuid_to_fobj_uuid_set[fs_uuid].add(f_uuid)
-    #_logger.debug("len(fsobj_uuid_to_fobj_uuid_set) = %d." % len(fsobj_uuid_to_fobj_uuid_set))
-    #_logger.debug("fsobj_uuid_to_fobj_uuid_set = %r." % fsobj_uuid_to_fobj_uuid_set)
+    # _logger.debug("len(fsobj_uuid_to_fobj_uuid_set) = %d." % len(fsobj_uuid_to_fobj_uuid_set))
+    # _logger.debug("fsobj_uuid_to_fobj_uuid_set = %r." % fsobj_uuid_to_fobj_uuid_set)
 
-    file_query = rdflib.plugins.sparql.prepareQuery("""\
+    file_query = rdflib.plugins.sparql.prepareQuery(
+        """\
 SELECT ?filename ?mtime ?atime ?ctime ?crtime ?filesize ?md5 ?sha1 ?sha256
 WHERE
 {
@@ -165,14 +169,28 @@ WHERE
     }
   }
 }
-""", initNs=nsdict)
+""",
+        initNs=nsdict,
+    )
     for fs_uuid in fsobj_uuid_to_fobj_uuid_set.keys():
         container = uuid_to_container[fs_uuid]
         _logger.debug(container)
         for f_uuid in fsobj_uuid_to_fobj_uuid_set[fs_uuid]:
-            file_results = g.query(file_query, initBindings={'trace': rdflib.URIRef(f_uuid)})
+            file_results = g.query(
+                file_query, initBindings={"trace": rdflib.URIRef(f_uuid)}
+            )
 
-            for (l_filename, l_mtime, l_atime, l_ctime, l_crtime, l_filesize, l_md5, l_sha1, l_sha256) in file_results:
+            for (
+                l_filename,
+                l_mtime,
+                l_atime,
+                l_ctime,
+                l_crtime,
+                l_filesize,
+                l_md5,
+                l_sha1,
+                l_sha256,
+            ) in file_results:
                 fobj = Objects.FileObject()
                 fobj.filename = None if l_filename is None else l_filename.toPython()
                 fobj.filesize = None if l_filesize is None else l_filesize.toPython()
@@ -188,16 +206,20 @@ WHERE
     with open(args.out_dfxml, "w") as out_fh:
         dobj.print_dfxml(output_fh=out_fh)
 
+
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", action="store_true")
     # Thanks to case_plaso_export.py for this one-liner.
-    format_choices = sorted([
-      p.name \
-        for p in rdflib.plugin.plugins(kind=rdflib.serializer.Serializer) \
-          if '/' not in p.name
-    ])
+    format_choices = sorted(
+        [
+            p.name
+            for p in rdflib.plugin.plugins(kind=rdflib.serializer.Serializer)
+            if "/" not in p.name
+        ]
+    )
     parser.add_argument("--input-format", choices=format_choices)
     parser.add_argument("in_file")
     parser.add_argument("out_dfxml")
