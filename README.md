@@ -17,7 +17,7 @@ This repository does not yet validate generated CASE data against CASE and the [
 
 This repository runs as in-place scripts.  It depends on the [CASE Python API](https://github.com/casework/case-api-python) being installed according to that repository's README, which is doable in a virtual environment if you do not have (or wish to use) administrator priveleges.
 
-You can run "`make setup`" to create a usable virtual environment under `./venv`.  This will require networking to install any dependencies not yet cached by `pip`.
+Running "`make check`" creates a usable virtual environment under `tests/venv`, as well as running unit tests.  This will require networking to install any dependencies not yet cached by `pip`.
 
 
 ## Usage

@@ -41,8 +41,11 @@ all:
 %.dfxml: \
   ../../deps/case/examples/%.json \
   $(case_to_dfxml_dependencies) \
-  ../../.setup_complete
-	python ../../case_to_dfxml.py $< >(xmllint --format - > _$@)
+  ../.venv.done.log
+	source ../venv/bin/activate \
+	  && python ../../case_to_dfxml.py \
+	    $< \
+	    >(xmllint --format - > _$@)
 	mv _$@ $@
 
 # NOTE: Some example files are purposefully omitted because they include design comments that Python's JSON library cannot parse.  These files are:

@@ -23,12 +23,10 @@ all: \
 
 .PHONY: \
   check-TODO \
-  check-recursive \
   check-supply-chain \
   check-supply-chain-mypy \
   check-supply-chain-pre-commit \
-  clean-recursive \
-  reset \
+  clean-tests \
   setup
 
 # Removing this flag file checks for added or removed submodules, but does not cause a submodule update to occur on submodules that have already been checked out at least once.
@@ -50,22 +48,6 @@ all: \
 .git_submodule_init.done.log: \
   .gitmodules
 	git submodule update --init
-	touch $@
-
-.setup_complete: \
-  deps/dfxml/setup.cfg
-	test -d venv || \
-	  $(PYTHON3) -m venv venv
-	test -r venv/lib/python3.*/site-packages/case-*.egg || \
-	  ( \
-	    source venv/bin/activate ; \
-	      pip install deps/case-api-python || exit $$? ; \
-	    deactivate \
-	  )
-	source venv/bin/activate \
-	  && pip install \
-	    --editable \
-	    deps/dfxml
 	touch $@
 
 # This virtual environment is meant to be built once and then persist, even through 'make clean'.
@@ -93,25 +75,17 @@ all: \
 
 check: \
   .venv-pre-commit/var/.pre-commit-built.log \
-  check-supply-chain-mypy \
-  check-recursive
+  check-supply-chain-mypy
 	$(MAKE) \
 	  PYTHON3=$(PYTHON3) \
 	  --directory tests \
 	  check
 
 check-TODO: \
-  check-recursive
-	source venv/bin/activate ; \
-	  $(MAKE) -C tests check-TODO ; \
-	deactivate
-
-check-recursive: \
-  .setup_complete \
-  check-supply-chain-mypy
-	source venv/bin/activate ; \
-	  $(MAKE) -C tests check ; \
-	deactivate
+  check
+	$(MAKE) \
+	  --directory tests \
+	  check-TODO
 
 # This target's dependencies potentially modify the working directory's Git state, so it is intentionally not a dependency of check.
 check-supply-chain: \
@@ -157,7 +131,7 @@ check-supply-chain-pre-commit: \
 	    >&2
 
 clean: \
-  clean-recursive
+  clean-tests
 	@rm -rf \
 	  *.egg-info \
 	  __pycache__ \
@@ -166,7 +140,7 @@ clean: \
 	@rm -f \
 	  .git_submodule_init.done.log
 
-clean-recursive:
+clean-tests:
 	@$(MAKE) \
 	  --directory tests \
 	  clean
@@ -175,10 +149,6 @@ deps/dfxml/setup.cfg: \
   .git_submodule_init
 	touch -c $@
 	test -r $@
-
-reset: \
-  clean
-	@rm -rf .git_submodule_init .setup_complete venv
 
 setup: \
   .setup_complete

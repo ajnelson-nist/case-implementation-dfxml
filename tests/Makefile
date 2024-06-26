@@ -176,10 +176,12 @@ clean-recursive: \
   clean-case_implementation_plaso_examples
 
 empty.json: \
-  ../.setup_complete \
+  .venv.done.log \
   empty_json.py
 	rm -f _$@
-	python empty_json.py _$@
+	source venv/bin/activate \
+	  && python empty_json.py \
+	    _$@
 	mv _$@ $@
 
 single_file_0.dfxml: \
@@ -187,59 +189,96 @@ single_file_0.dfxml: \
   empty.json \
   single_file_0_dfxml.py
 	rm -f _$@ __$@
-	python single_file_0_dfxml.py >(xmllint --format - > _$@)
+	source venv/bin/activate \
+	  && python single_file_0_dfxml.py \
+	    >(xmllint --format - > _$@)
 	mv _$@ $@
 
 single_file_0_2_deltas.dfxml: \
   $(make_differential_dfxml_dependencies) \
   single_file_2.dfxml.validates.log
 	rm -f _$@
-	make_differential_dfxml --retain-unchanged single_file_{0,2}.dfxml | xmllint --format - > _$@
+	source venv/bin/activate \
+	  && make_differential_dfxml \
+	    --retain-unchanged \
+	    single_file_{0,2}.dfxml \
+	    | xmllint \
+	      --format \
+	      - \
+	      > _$@
 	mv _$@ $@
 
 single_file_0_json_2_deltas.dfxml: \
   $(make_differential_dfxml_dependencies) \
   single_file_2.json.dfxml.validates.log
 	rm -f _$@
-	make_differential_dfxml --retain-unchanged single_file_0.dfxml single_file_2.json.dfxml | xmllint --format - > _$@
+	source venv/bin/activate \
+	  && make_differential_dfxml \
+	    --retain-unchanged \
+	    single_file_0.dfxml \
+	    single_file_2.json.dfxml \
+	    | xmllint \
+	      --format \
+	      - \
+	      > _$@
 	mv _$@ $@
 
 single_file_1.json: \
-  ../.setup_complete \
   $(dfxml_to_case_dependencies) \
   single_file_0.dfxml.validates.log
 	rm -f _$@
-	python ../dfxml_to_case.py --debug --output-format=json-ld single_file_0.dfxml _$@
+	source venv/bin/activate \
+	  && python ../dfxml_to_case.py \
+	    --debug \
+	    --output-format=json-ld \
+	    single_file_0.dfxml \
+	    _$@
 	mv _$@ $@
 
 single_file_1.rdf: \
-  ../.setup_complete \
   $(dfxml_to_case_dependencies) \
   single_file_0.dfxml.validates.log
 	rm -f _$@
-	python ../dfxml_to_case.py --debug --output-format=xml single_file_0.dfxml _$@
+	source venv/bin/activate \
+	  && python ../dfxml_to_case.py \
+	    --debug \
+	    --output-format=xml \
+	    single_file_0.dfxml \
+	    _$@
 	mv _$@ $@
 
 single_file_1.ttl: \
-  ../.setup_complete \
   $(dfxml_to_case_dependencies) \
   single_file_0.dfxml.validates.log
 	rm -f _$@
-	python ../dfxml_to_case.py --debug --output-format=ttl single_file_0.dfxml _$@
+	source venv/bin/activate \
+	  && python ../dfxml_to_case.py \
+	    --debug  \
+	    --output-format=ttl \
+	    single_file_0.dfxml \
+	    _$@
 	mv _$@ $@
 
 single_file_2.dfxml: \
   $(case_to_dfxml_dependencies) \
   single_file_1.ttl
 	rm -f _$@ __$@
-	python ../case_to_dfxml.py --debug single_file_1.ttl >(xmllint --format - > _$@)
+	source venv/bin/activate \
+	  && python ../case_to_dfxml.py \
+	    --debug \
+	    single_file_1.ttl \
+	    >(xmllint --format - > _$@)
 	mv _$@ $@
 
 single_file_2.json.dfxml: \
   $(case_to_dfxml_dependencies) \
   single_file_1.json
 	rm -f _$@ __$@
-	python ../case_to_dfxml.py --debug single_file_1.json >(xmllint --format - > _$@)
+	source venv/bin/activate \
+	  && python ../case_to_dfxml.py \
+	    --debug \
+	    single_file_1.json \
+	    >(xmllint --format - > _$@)
 	mv _$@ $@
 
 single_filesystem_single_file_0.dfxml: \
@@ -247,36 +286,56 @@ single_filesystem_single_file_0.dfxml: \
   empty.json \
   single_filesystem_single_file_0_dfxml.py
 	rm -f _$@ __$@
-	python single_filesystem_single_file_0_dfxml.py >(xmllint --format - > _$@)
+	source venv/bin/activate \
+	  && python single_filesystem_single_file_0_dfxml.py \
+	    >(xmllint --format - > _$@)
 	mv _$@ $@
 
 single_filesystem_single_file_0_2_deltas.dfxml: \
   $(make_differential_dfxml_dependencies) \
   single_filesystem_single_file_2.dfxml.validates.log
 	rm -f _$@
-	make_differential_dfxml --debug --retain-unchanged single_filesystem_single_file_{0,2}.dfxml | xmllint --format - > _$@
+	source venv/bin/activate \
+	  && make_differential_dfxml \
+	    --debug \
+	    --retain-unchanged \
+	    single_filesystem_single_file_{0,2}.dfxml \
+	    | xmllint \
+	      --format \
+	      - \
+	      > _$@
 	mv _$@ $@
 
 single_filesystem_single_file_1.ttl: \
-  ../.setup_complete \
   $(dfxml_to_case_dependencies) \
   single_filesystem_single_file_0.dfxml.validates.log
 	rm -f _$@
-	python ../dfxml_to_case.py --debug --output-format=ttl single_filesystem_single_file_0.dfxml _$@
+	source venv/bin/activate \
+	  && python ../dfxml_to_case.py \
+	    --debug \
+	    --output-format=ttl \
+	    single_filesystem_single_file_0.dfxml \
+	    _$@
 	mv _$@ $@
 
 single_filesystem_single_file_2.dfxml: \
   $(case_to_dfxml_dependencies) \
   single_filesystem_single_file_1.ttl
 	rm -f _$@ __$@
-	python ../case_to_dfxml.py --debug single_filesystem_single_file_1.ttl >(xmllint --format - > _$@)
+	source venv/bin/activate \
+	  && python ../case_to_dfxml.py \
+	    --debug \
+	    single_filesystem_single_file_1.ttl \
+	    >(xmllint --format - > _$@)
 	mv _$@ $@
 
 # Verify a DFXML file that just lists a single file can translate into CASE and back via some format.
 verify_single_file.log: \
   single_file_0_2_deltas.dfxml.validates.log \
   verify_single_file.py
-	python verify_single_file.py single_file_0_2_deltas.dfxml
+	source venv/bin/activate \
+	  && python verify_single_file.py \
+	    single_file_0_2_deltas.dfxml
 	touch $@
 
 # Verify a DFXML file that just lists a single file can translate into CASE and back via JSON-LD.
@@ -284,11 +343,15 @@ verify_single_file.log: \
 verify_single_file_via_jsonld.log: \
   single_file_0_json_2_deltas.dfxml.validates.log \
   verify_single_file.py
-	python verify_single_file.py single_file_0_json_2_deltas.dfxml
+	source venv/bin/activate \
+	  && python verify_single_file.py \
+	    single_file_0_json_2_deltas.dfxml
 	touch $@
 
 verify_single_filesystem_single_file.log: \
   single_filesystem_single_file_0_2_deltas.dfxml.validates.log \
   verify_single_filesystem_single_file.py
-	python verify_single_file.py single_filesystem_single_file_0_2_deltas.dfxml
+	source venv/bin/activate \
+	  && python verify_single_file.py \
+	    single_filesystem_single_file_0_2_deltas.dfxml
 	touch $@

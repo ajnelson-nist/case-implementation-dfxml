@@ -44,8 +44,11 @@ all:
 %.dfxml: \
   ../../deps/case-implementation-plaso/examples/% \
   $(case_to_dfxml_dependencies) \
-  ../../.setup_complete
-	python ../../case_to_dfxml.py $< >(xmllint --format - > _$@)
+  ../.venv.done.log
+	source ../venv/bin/activate \
+	  && python ../../case_to_dfxml.py \
+	    $< \
+	    >(xmllint --format - > _$@)
 	mv _$@ $@
 
 #TODO These files have a problem parsing.  Issue filed here:
