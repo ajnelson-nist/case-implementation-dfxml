@@ -134,7 +134,7 @@ check-doctest: \
 	  && pytest \
 	    --doctest-modules \
 	    --log-level=DEBUG \
-	    $(top_srcdir)/case_cli_example
+	    $(top_srcdir)/case_dfxml
 
 check-mypy: \
   .venv.done.log
@@ -142,7 +142,7 @@ check-mypy: \
 	  && mypy \
 	    --exclude venv \
 	    --strict \
-	    $(top_srcdir)/case_cli_example \
+	    $(top_srcdir)/case_dfxml \
 	    .
 
 check-package: \

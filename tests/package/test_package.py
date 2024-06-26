@@ -14,7 +14,7 @@
 #
 # We would appreciate acknowledgement if the software is used.
 
-from case_cli_example import foo
+from case_dfxml import foo
 
 
 def test_package() -> None:

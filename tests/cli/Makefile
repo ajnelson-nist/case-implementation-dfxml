@@ -46,11 +46,11 @@ clean:
 	  .pytest_cache
 
 example_output.%: \
-  $(top_srcdir)/case_cli_example/cli.py \
+  $(top_srcdir)/case_dfxml/cli.py \
   $(top_srcdir)/tests/.venv.done.log
 	export CDO_DEMO_NONRANDOM_UUID_BASE="$(top_srcdir)" \
 	  && source $(top_srcdir)/tests/venv/bin/activate \
-	    && case_cli_example \
+	    && case_dfxml \
 	      _$@
 	source $(top_srcdir)/tests/venv/bin/activate \
 	  && case_validate \
@@ -58,11 +58,11 @@ example_output.%: \
 	mv _$@ $@
 
 example_output_debug.%: \
-  $(top_srcdir)/case_cli_example/cli.py \
+  $(top_srcdir)/case_dfxml/cli.py \
   $(top_srcdir)/tests/.venv.done.log
 	export CDO_DEMO_NONRANDOM_UUID_BASE="$(top_srcdir)" \
 	  && source $(top_srcdir)/tests/venv/bin/activate \
-	    && case_cli_example \
+	    && case_dfxml \
 	      --debug \
 	      _$@
 	source $(top_srcdir)/tests/venv/bin/activate \
