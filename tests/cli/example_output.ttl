@@ -1,0 +1,7 @@
+@prefix kb: <http://example.org/kb/> .
+@prefix uco-core: <https://ontology.unifiedcyberontology.org/uco/core/> .
+@prefix uco-identity: <https://ontology.unifiedcyberontology.org/uco/identity/> .
+
+kb:Organization-a70ee2b7-9fd8-537f-8f70-6f68805acae6 a uco-identity:Organization ;
+    uco-core:name "Cyber Domain Ontology" .
+

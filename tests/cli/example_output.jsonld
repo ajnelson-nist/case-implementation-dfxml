@@ -1,0 +1,13 @@
+[
+  {
+    "@id": "http://example.org/kb/Organization-b7c4b9e3-a93b-53b8-8a58-243986ddc2dc",
+    "@type": [
+      "https://ontology.unifiedcyberontology.org/uco/identity/Organization"
+    ],
+    "https://ontology.unifiedcyberontology.org/uco/core/name": [
+      {
+        "@value": "Cyber Domain Ontology"
+      }
+    ]
+  }
+]

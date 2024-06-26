@@ -1,0 +1,6 @@
+.pytest_cache
+.venv.done.log
+.venv_minimal.done.log
+_*
+venv
+venv_minimal
