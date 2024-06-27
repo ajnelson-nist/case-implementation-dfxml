@@ -41,6 +41,7 @@ from case_utils.namespace import (
     NS_UCO_CORE,
     NS_UCO_OBSERVABLE,
     NS_UCO_TYPES,
+    NS_UCO_VOCABULARY,
     NS_XSD,
 )
 from cdo_local_uuid import local_uuid
@@ -392,6 +393,7 @@ def main() -> None:
     graph.bind("uco-core", NS_UCO_CORE)
     graph.bind("uco-observable", NS_UCO_OBSERVABLE)
     graph.bind("uco-types", NS_UCO_TYPES)
+    graph.bind("uco-vocabulary", NS_UCO_VOCABULARY)
 
     # Bind various prefixes to prefix-IRIs in the output graph.
     # At the time of this writing, this compacts Turtle data, but does
