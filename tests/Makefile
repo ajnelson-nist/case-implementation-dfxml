@@ -140,6 +140,8 @@ check-mypy: \
 	    --exclude venv \
 	    --strict \
 	    $(top_srcdir)/case_dfxml \
+	    $(top_srcdir)/case_to_dfxml.py \
+	    $(top_srcdir)/dfxml_to_case.py \
 	    .
 
 check-package: \
@@ -177,6 +179,9 @@ empty.json: \
 	rm -f _$@
 	source venv/bin/activate \
 	  && python empty_json.py \
+	    _$@
+	source venv/bin/activate \
+	  && case_validate \
 	    _$@
 	mv _$@ $@
 
@@ -236,11 +241,15 @@ single_file_1.json: \
   $(dfxml_to_case_dependencies) \
   single_file_0.dfxml
 	rm -f _$@
+	export CDO_DEMO_NONRANDOM_UUID_BASE=$(top_srcdir) \
+	  && source venv/bin/activate \
+	    && python ../dfxml_to_case.py \
+	      --debug \
+	      --output-format=json-ld \
+	      single_file_0.dfxml \
+	      _$@
 	source venv/bin/activate \
-	  && python ../dfxml_to_case.py \
-	    --debug \
-	    --output-format=json-ld \
-	    single_file_0.dfxml \
+	  && case_validate \
 	    _$@
 	mv _$@ $@
 
@@ -248,11 +257,15 @@ single_file_1.rdf: \
   $(dfxml_to_case_dependencies) \
   single_file_0.dfxml
 	rm -f _$@
+	export CDO_DEMO_NONRANDOM_UUID_BASE=$(top_srcdir) \
+	  && source venv/bin/activate \
+	    && python ../dfxml_to_case.py \
+	      --debug \
+	      --output-format=xml \
+	      single_file_0.dfxml \
+	      _$@
 	source venv/bin/activate \
-	  && python ../dfxml_to_case.py \
-	    --debug \
-	    --output-format=xml \
-	    single_file_0.dfxml \
+	  && case_validate \
 	    _$@
 	mv _$@ $@
 
@@ -260,11 +273,15 @@ single_file_1.ttl: \
   $(dfxml_to_case_dependencies) \
   single_file_0.dfxml
 	rm -f _$@
+	export CDO_DEMO_NONRANDOM_UUID_BASE=$(top_srcdir) \
+	  && source venv/bin/activate \
+	    && python ../dfxml_to_case.py \
+	      --debug  \
+	      --output-format=ttl \
+	      single_file_0.dfxml \
+	      _$@
 	source venv/bin/activate \
-	  && python ../dfxml_to_case.py \
-	    --debug  \
-	    --output-format=ttl \
-	    single_file_0.dfxml \
+	  && case_validate \
 	    _$@
 	mv _$@ $@
 
@@ -341,11 +358,15 @@ single_filesystem_single_file_1.ttl: \
   $(dfxml_to_case_dependencies) \
   single_filesystem_single_file_0.dfxml
 	rm -f _$@
+	export CDO_DEMO_NONRANDOM_UUID_BASE=$(top_srcdir) \
+	  && source venv/bin/activate \
+	    && python ../dfxml_to_case.py \
+	      --debug \
+	      --output-format=ttl \
+	      single_filesystem_single_file_0.dfxml \
+	      _$@
 	source venv/bin/activate \
-	  && python ../dfxml_to_case.py \
-	    --debug \
-	    --output-format=ttl \
-	    single_filesystem_single_file_0.dfxml \
+	  && case_validate \
 	    _$@
 	mv _$@ $@
 
