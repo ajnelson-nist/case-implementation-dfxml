@@ -415,6 +415,7 @@ def main() -> None:
             if isinstance(obj, Objects.DiskImageObject):
                 # TODO This logic implements a stub to handle volume.partition_offset.
                 trace = ns_kb["Image-" + local_uuid()]
+                graph.add((trace, NS_RDF.type, NS_UCO_OBSERVABLE.Image))
                 trace_image_stack.append(trace)
                 trace_object_stack.append(trace)
             elif isinstance(obj, Objects.VolumeObject):
