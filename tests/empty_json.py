@@ -14,15 +14,15 @@
 #
 # We would appreciate acknowledgement if the software is used.
 
-__version__ = "1.0.1"
+__version__ = "1.1.0"
 
-import case  # type: ignore
+from rdflib import Graph
 
 
 def main() -> None:
-    document = case.Document()
+    graph = Graph()
 
-    document.serialize(format="json-ld", destination=args.output_json)
+    graph.serialize(format="json-ld", destination=args.output_json)
 
 
 if __name__ == "__main__":

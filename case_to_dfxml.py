@@ -174,7 +174,7 @@ WHERE {
     for filesystem_result in graph.query(filesystem_query):
         assert isinstance(filesystem_result, ResultRow)
         assert isinstance(filesystem_result[0], URIRef)
-        assert isinstance(filesystem_result[1], Literal)
+        assert filesystem_result[1] is None or isinstance(filesystem_result[1], Literal)
         n_file_system = filesystem_result[0]
         l_ftype_str = filesystem_result[1]
 

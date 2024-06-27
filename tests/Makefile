@@ -59,7 +59,6 @@ all:
 .venv.done.log: \
   $(dfxml_top_srcdir)/setup.cfg \
   $(top_srcdir)/.git_submodule_init.done.log \
-  $(top_srcdir)/deps/case-api-python/setup.py \
   $(top_srcdir)/setup.cfg \
   $(top_srcdir)/setup.py
 	rm -rf venv
@@ -71,9 +70,6 @@ all:
 	    pip \
 	    setuptools \
 	    wheel
-	source venv/bin/activate \
-	  && pip install \
-	    $(top_srcdir)/deps/case-api-python
 	source venv/bin/activate \
 	  && pip install \
 	    --editable \
