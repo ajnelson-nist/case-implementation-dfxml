@@ -46,6 +46,7 @@ from case_utils.namespace import (
 from cdo_local_uuid import local_uuid
 from dfxml import objects as Objects
 from rdflib import Graph, Literal, Namespace, URIRef
+from rdflib.util import guess_format
 
 _logger = logging.getLogger(os.path.basename(__file__))
 
@@ -350,29 +351,58 @@ def volumeobject_to_trace(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--debug", action="store_true")
-    parser.add_argument("--kb-prefix-label", default="kb")
-    parser.add_argument("--kb-prefix-iri", default="http://example.org/kb/")
-    parser.add_argument("--output-format", default="ttl")
-    parser.add_argument("--use-inherent-uuids", action="store_true")
-    parser.add_argument("in_dfxml")
-    parser.add_argument("out_file")
-    args = parser.parse_args()
+    argument_parser = argparse.ArgumentParser()
+    argument_parser.add_argument("-d", "--debug", action="store_true")
+    argument_parser.add_argument(
+        "--kb-prefix-label",
+        default="kb",
+        help="Prefix label to use for knowledge-base individuals.  E.g. with defaults, 'http://example.org/kb/Thing-1' would compact to 'kb:Thing-1'.",
+    )
+    argument_parser.add_argument(
+        "--kb-prefix-iri",
+        default="http://example.org/kb/",
+        help="Prefix IRI to use for knowledge-base individuals.  E.g. with defaults, 'http://example.org/kb/Thing-1' would compact to 'kb:Thing-1'.",
+    )
+    argument_parser.add_argument(
+        "--output-format", help="Override extension-based format guesser."
+    )
+    argument_parser.add_argument("--use-inherent-uuids", action="store_true")
+    argument_parser.add_argument("in_dfxml")
+    argument_parser.add_argument(
+        "out_graph",
+        help="A self-contained RDF graph file, in the format either requested by --output-format or guessed based on extension.",
+    )
+    args = argument_parser.parse_args()
 
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
 
+    # See cdo_local_uuid._demo_uuid for how to use this to set up
+    # a process call that opts in to nonrandom UUIDs.  Opting in is
+    # beneficial for generating and version-controlling example runs of
+    # this tool, but might not be appropriate for production operation.
     cdo_local_uuid.configure()
 
-    graph = Graph()
+    # Define Namespace object to assist with generating individual nodes.
     ns_kb = Namespace(args.kb_prefix_iri)
-    graph.bind(args.kb_prefix_label, ns_kb)
+
+    graph = Graph()
     graph.bind("drafting", NS_DRAFTING)
     graph.bind("owl", NS_OWL)
     graph.bind("rdfs", NS_RDFS)
     graph.bind("uco-core", NS_UCO_CORE)
     graph.bind("uco-observable", NS_UCO_OBSERVABLE)
     graph.bind("uco-types", NS_UCO_TYPES)
+
+    # Bind various prefixes to prefix-IRIs in the output graph.
+    # At the time of this writing, this compacts Turtle data, but does
+    # not induce a JSON-LD Context Dictionary.
+    graph.bind(args.kb_prefix_label, ns_kb)
+
+    # This binding should be kept, because various RDF frameworks
+    # disagree on whether "xs:" or "xsd:" should be the prefix, and
+    # conflicting usage can lead to confusion or data errors when
+    # multiple tools contribute to the same graph.
+    graph.namespace_manager.bind("xsd", NS_XSD)
 
     trace_image_stack: List[URIRef] = []
     trace_object_stack: List[URIRef] = []
@@ -411,7 +441,13 @@ def main() -> None:
                     use_inherent_uuids=args.use_inherent_uuids,
                 )
 
-    graph.serialize(args.out_file, format=args.output_format)
+    # Write output file.
+    output_format = (
+        guess_format(args.out_graph)
+        if args.output_format is None
+        else args.output_format
+    )
+    graph.serialize(destination=args.out_graph, format=output_format)
 
 
 if __name__ == "__main__":

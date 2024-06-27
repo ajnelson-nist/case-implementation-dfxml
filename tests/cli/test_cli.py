@@ -14,73 +14,79 @@
 #
 # We would appreciate acknowledgement if the software is used.
 
+import logging
 from pathlib import Path
-from typing import Set
 
 import pytest
-from case_utils.namespace import NS_RDF, NS_UCO_IDENTITY
-from rdflib import Graph, URIRef
-from rdflib.query import ResultRow
+from dfxml import objects as Objects
 
 
 @pytest.mark.parametrize(
-    ["filename"],
+    ["in_dfxml"],
     [
-        ("example_output.jsonld",),
-        ("example_output.rdf",),
-        ("example_output.ttl",),
-        ("example_output_debug.jsonld",),
-        ("example_output_debug.rdf",),
-        ("example_output_debug.ttl",),
+        # Verify a DFXML file that just lists a single file can translate into CASE and back via some format.
+        ("single_file_0_2_deltas.dfxml",),
+        # Verify a DFXML file that just lists a single file can translate into CASE and back via JSON-LD.
+        ("single_file_0_json_2_deltas.dfxml",),
     ],
 )
-def test_example_output_with_iterator(filename: str) -> None:
+def test_single_file_round_trip(in_dfxml: str) -> None:
     srcdir = Path(__file__).parent
-    graph = Graph()
-    graph.parse(srcdir / filename)
-    n_organizations: Set[URIRef] = set()
-    for n_subject in graph.subjects(NS_RDF.type, NS_UCO_IDENTITY.Organization):
-        assert isinstance(n_subject, URIRef)
-        n_organizations.add(n_subject)
-    assert len(n_organizations) == 1
+    fileobject_count = 0
+    for event, obj in Objects.iterparse(str(srcdir / in_dfxml)):
+        if event != "end":
+            continue
+        if not isinstance(obj, Objects.FileObject):
+            continue
+        fileobject_count += 1
+        if "new" in obj.annos:
+            raise ValueError("A new file was created in translation.")
+        if "deleted" in obj.annos:
+            raise ValueError("A file was lost in translation.")
+        if len(obj.diffs) > 0:
+            for diff in obj.diffs:
+                logging.info(
+                    "%s: %r -> %r."
+                    % (diff, getattr(obj, diff), getattr(obj.original_fileobject, diff))
+                )
+            raise ValueError(
+                "Information changed translating between DFXML, CASE, and back."
+            )
+    assert fileobject_count > 0, "No files emitted."
 
 
-@pytest.mark.parametrize(
-    ["filename"],
-    [
-        ("example_output.jsonld",),
-        ("example_output.rdf",),
-        ("example_output.ttl",),
-        ("example_output_debug.jsonld",),
-        ("example_output_debug.rdf",),
-        ("example_output_debug.ttl",),
-    ],
-)
-def test_example_output_with_sparql(filename: str) -> None:
+def test_single_filesystem_single_file_round_trip() -> None:
     srcdir = Path(__file__).parent
-    graph = Graph()
-    graph.parse(srcdir / filename)
-
-    # This query includes a prefix statement that is typically provided
-    # by the data graph.  However, some graph generators omit prefixes
-    # if they are never referenced in the triples.  In that case,
-    # attempting to run this query without a PREFIX statement would fail
-    # due to an unbound prefix.  While ultimately the test would be
-    # correct in failing, it would fail for a potentially confusing
-    # reason appearing to be a syntax error, rather than a real reason
-    # of the query having no data to find.
-    query = """\
-PREFIX uco-identity: <https://ontology.unifiedcyberontology.org/uco/identity/>
-SELECT ?nOrganization
-WHERE {
-  ?nOrganization
-    a uco-identity:Organization ;
-    .
-}
-"""
-    n_organizations: Set[URIRef] = set()
-    for result in graph.query(query):
-        assert isinstance(result, ResultRow)
-        assert isinstance(result[0], URIRef)
-        n_organizations.add(result[0])
-    assert len(n_organizations) == 1
+    volumeobject_count = 0
+    fileobject_count = 0
+    for event, obj in Objects.iterparse(
+        str(srcdir / "single_filesystem_single_file_0_2_deltas.dfxml")
+    ):
+        if event != "end":
+            continue
+        if isinstance(obj, Objects.VolumeObject):
+            volumeobject_count += 1
+            if len(obj.annos) > 0:
+                logging.info("obj.annos: %r." % obj.annos)
+                raise ValueError(
+                    "Properties of the file system changed in the round trip."
+                )
+            continue
+        if not isinstance(obj, Objects.FileObject):
+            continue
+        fileobject_count += 1
+        if "new" in obj.annos:
+            raise ValueError("A new file was created in translation.")
+        if "deleted" in obj.annos:
+            raise ValueError("A file was lost in translation.")
+        if len(obj.diffs) > 0:
+            for diff in obj.diffs:
+                logging.info(
+                    "%s: %r -> %r."
+                    % (diff, getattr(obj, diff), getattr(obj.original_fileobject, diff))
+                )
+            raise ValueError(
+                "Information changed translating between DFXML, CASE, and back."
+            )
+    assert volumeobject_count > 0, "No file systems emitted."
+    assert fileobject_count > 0, "No files emitted."

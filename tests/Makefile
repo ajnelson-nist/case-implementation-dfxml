@@ -28,29 +28,22 @@ objects_py_dependencies := \
   $(dfxml_top_srcdir)/dfxml/__init__.py \
   $(dfxml_top_srcdir)/dfxml/objects.py
 
-make_differential_dfxml_dependencies := \
-  $(dfxml_top_srcdir)/dfxml/bin/make_differential_dfxml.py \
-  $(objects_py_dependencies)
-
 case_to_dfxml_dependencies := \
   $(objects_py_dependencies) \
-  $(top_srcdir)/case_to_dfxml.py
+  $(top_srcdir)/case_dfxml/case_to_dfxml.py
 
 dfxml_to_case_dependencies := \
   $(objects_py_dependencies) \
-  $(top_srcdir)/dfxml_to_case.py
+  $(top_srcdir)/case_dfxml/dfxml_to_case.py
 
 # Dependencies are listed here in desired execution-progression order.
 all:
 
 .PHONY: \
-  check-TODO \
-  check-basic \
-  check-basic-TODO \
   check-case_examples \
-  clean-case_examples \
   check-cli \
   check-mypy \
+  clean-case_examples \
   clean-recursive
 
 .venv.done.log: \
@@ -86,20 +79,8 @@ check: \
   check-case_examples
 	@echo "Unit tests pass!"
 
-check-TODO: \
-  check-basic-TODO
-
-check-basic: \
-  empty.json \
-  single_file_1.rdf \
-  verify_single_file.log \
-  verify_single_filesystem_single_file.log
-
-check-basic-TODO: \
-  verify_single_file_via_jsonld.log
-
 check-case_examples: \
-  check-basic
+  check-cli
 	$(MAKE) -C case_examples check
 
 check-cli: \
@@ -123,8 +104,6 @@ check-mypy: \
 	    --exclude venv \
 	    --strict \
 	    $(top_srcdir)/case_dfxml \
-	    $(top_srcdir)/case_to_dfxml.py \
-	    $(top_srcdir)/dfxml_to_case.py \
 	    .
 
 check-package: \
@@ -151,244 +130,3 @@ clean-case_examples:
 
 clean-recursive: \
   clean-case_examples
-
-empty.json: \
-  .venv.done.log \
-  empty_json.py
-	rm -f _$@
-	source venv/bin/activate \
-	  && python empty_json.py \
-	    _$@
-	source venv/bin/activate \
-	  && case_validate \
-	    _$@
-	mv _$@ $@
-
-single_file_0.dfxml: \
-  $(dfxml_xsd) \
-  $(objects_py_dependencies) \
-  empty.json \
-  single_file_0_dfxml.py
-	rm -f __$@ _$@
-	source venv/bin/activate \
-	  && python single_file_0_dfxml.py \
-	    __$@
-	xmllint \
-	  --format \
-	  --schema $(dfxml_xsd) \
-	  __$@ \
-	  > _$@
-	rm __$@
-	mv _$@ $@
-
-single_file_0_2_deltas.dfxml: \
-  $(make_differential_dfxml_dependencies) \
-  single_file_2.dfxml
-	rm -f __$@ _$@
-	source venv/bin/activate \
-	  && make_differential_dfxml \
-	    --retain-unchanged \
-	    single_file_{0,2}.dfxml \
-	    > __$@
-	xmllint \
-	  --format \
-	  --schema $(dfxml_xsd) \
-	  __$@ \
-	  > _$@
-	rm __$@
-	mv _$@ $@
-
-single_file_0_json_2_deltas.dfxml: \
-  $(make_differential_dfxml_dependencies) \
-  single_file_2.json.dfxml
-	rm -f __$@ _$@
-	source venv/bin/activate \
-	  && make_differential_dfxml \
-	    --retain-unchanged \
-	    single_file_0.dfxml \
-	    single_file_2.json.dfxml \
-	    > __$@
-	xmllint \
-	  --format \
-	  --schema $(dfxml_xsd) \
-	  __$@ \
-	  > _$@
-	rm __$@
-	mv _$@ $@
-
-single_file_1.json: \
-  $(dfxml_to_case_dependencies) \
-  single_file_0.dfxml
-	rm -f _$@
-	export CDO_DEMO_NONRANDOM_UUID_BASE=$(top_srcdir) \
-	  && source venv/bin/activate \
-	    && python ../dfxml_to_case.py \
-	      --debug \
-	      --output-format=json-ld \
-	      single_file_0.dfxml \
-	      _$@
-	source venv/bin/activate \
-	  && case_validate \
-	    _$@
-	mv _$@ $@
-
-single_file_1.rdf: \
-  $(dfxml_to_case_dependencies) \
-  single_file_0.dfxml
-	rm -f _$@
-	export CDO_DEMO_NONRANDOM_UUID_BASE=$(top_srcdir) \
-	  && source venv/bin/activate \
-	    && python ../dfxml_to_case.py \
-	      --debug \
-	      --output-format=xml \
-	      single_file_0.dfxml \
-	      _$@
-	source venv/bin/activate \
-	  && case_validate \
-	    _$@
-	mv _$@ $@
-
-single_file_1.ttl: \
-  $(dfxml_to_case_dependencies) \
-  single_file_0.dfxml
-	rm -f _$@
-	export CDO_DEMO_NONRANDOM_UUID_BASE=$(top_srcdir) \
-	  && source venv/bin/activate \
-	    && python ../dfxml_to_case.py \
-	      --debug  \
-	      --output-format=ttl \
-	      single_file_0.dfxml \
-	      _$@
-	source venv/bin/activate \
-	  && case_validate \
-	    _$@
-	mv _$@ $@
-
-single_file_2.dfxml: \
-  $(case_to_dfxml_dependencies) \
-  single_file_1.ttl
-	rm -f __$@ _$@
-	source venv/bin/activate \
-	  && python ../case_to_dfxml.py \
-	    --debug \
-	    single_file_1.ttl \
-	    __$@
-	xmllint \
-	  --format \
-	  --schema $(dfxml_xsd) \
-	  __$@ \
-	  > _$@
-	rm __$@
-	mv _$@ $@
-
-single_file_2.json.dfxml: \
-  $(case_to_dfxml_dependencies) \
-  single_file_1.json
-	rm -f __$@ _$@
-	source venv/bin/activate \
-	  && python ../case_to_dfxml.py \
-	    --debug \
-	    single_file_1.json \
-	    __$@
-	xmllint \
-	  --format \
-	  --schema $(dfxml_xsd) \
-	  __$@ \
-	  > _$@
-	rm __$@
-	mv _$@ $@
-
-single_filesystem_single_file_0.dfxml: \
-  $(dfxml_xsd) \
-  $(objects_py_dependencies) \
-  empty.json \
-  single_filesystem_single_file_0_dfxml.py
-	rm -f __$@ _$@
-	source venv/bin/activate \
-	  && python single_filesystem_single_file_0_dfxml.py \
-	    __$@
-	xmllint \
-	  --format \
-	  --schema $(dfxml_xsd) \
-	  __$@ \
-	  > _$@
-	rm __$@
-	mv _$@ $@
-
-single_filesystem_single_file_0_2_deltas.dfxml: \
-  $(make_differential_dfxml_dependencies) \
-  single_filesystem_single_file_2.dfxml
-	rm -f __$@ _$@
-	source venv/bin/activate \
-	  && make_differential_dfxml \
-	    --debug \
-	    --retain-unchanged \
-	    single_filesystem_single_file_{0,2}.dfxml \
-	    > __$@
-	xmllint \
-	  --format \
-	  --schema $(dfxml_xsd) \
-	  __$@ \
-	  > _$@
-	rm __$@
-	mv _$@ $@
-
-single_filesystem_single_file_1.ttl: \
-  $(dfxml_to_case_dependencies) \
-  single_filesystem_single_file_0.dfxml
-	rm -f _$@
-	export CDO_DEMO_NONRANDOM_UUID_BASE=$(top_srcdir) \
-	  && source venv/bin/activate \
-	    && python ../dfxml_to_case.py \
-	      --debug \
-	      --output-format=ttl \
-	      single_filesystem_single_file_0.dfxml \
-	      _$@
-	source venv/bin/activate \
-	  && case_validate \
-	    _$@
-	mv _$@ $@
-
-single_filesystem_single_file_2.dfxml: \
-  $(case_to_dfxml_dependencies) \
-  single_filesystem_single_file_1.ttl
-	rm -f __$@ _$@
-	source venv/bin/activate \
-	  && python ../case_to_dfxml.py \
-	    --debug \
-	    single_filesystem_single_file_1.ttl \
-	    __$@
-	xmllint \
-	  --format \
-	  --schema $(dfxml_xsd) \
-	  __$@ \
-	  > _$@
-	rm __$@
-	mv _$@ $@
-
-# Verify a DFXML file that just lists a single file can translate into CASE and back via some format.
-verify_single_file.log: \
-  single_file_0_2_deltas.dfxml \
-  verify_single_file.py
-	source venv/bin/activate \
-	  && python verify_single_file.py \
-	    single_file_0_2_deltas.dfxml
-	touch $@
-
-# Verify a DFXML file that just lists a single file can translate into CASE and back via JSON-LD.
-# This is a dependency of check-basic-TODO because at the time of this writing the CASE API currently doesn't read the JSON-LD output it generates.  The parse() method returns an empty graph.
-verify_single_file_via_jsonld.log: \
-  single_file_0_json_2_deltas.dfxml \
-  verify_single_file.py
-	source venv/bin/activate \
-	  && python verify_single_file.py \
-	    single_file_0_json_2_deltas.dfxml
-	touch $@
-
-verify_single_filesystem_single_file.log: \
-  single_filesystem_single_file_0_2_deltas.dfxml \
-  verify_single_filesystem_single_file.py
-	source venv/bin/activate \
-	  && python verify_single_file.py \
-	    single_filesystem_single_file_0_2_deltas.dfxml
-	touch $@

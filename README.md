@@ -5,17 +5,12 @@
 
 _(Please see the [NIST disclaimer](#disclaimer).)_
 
-This repository implements translations between Digital Forensics XML ([DFXML](http://forensicswiki.org/wiki/Category:Digital_Forensics_XML)) and Cyber-investigation Analysis Standard Expression ([CASE](https://casework.github.io/case/)).
-
-
-## Caveats
-
-This repository does not yet validate generated CASE data against CASE and the [Unified Cyber Ontology](https://ucoproject.github.io/uco/).
+This repository implements translations between Digital Forensics XML ([DFXML](http://forensicswiki.org/wiki/Category:Digital_Forensics_XML)) and Cyber-investigation Analysis Standard Expression ([CASE](https://caseontology.org/)).
 
 
 ## Installation
 
-This repository runs as in-place scripts.  It depends on the [CASE Python API](https://github.com/casework/case-api-python) being installed according to that repository's README, which is doable in a virtual environment if you do not have (or wish to use) administrator priveleges.
+This repository provides two commands on installation.  It depends on the [CASE Python Utilities](https://github.com/casework/CASE-Utilities-Python) being installed (which can be done via `pip`), and the [DFXML Python library](https://github.com/dfxml-working-group/dfxml_python).  These installations can be done in a virtual environment if you do not have (or wish to use) administrator privileges.
 
 Running "`make check`" creates a usable virtual environment under `tests/venv`, as well as running unit tests.  This will require networking to install any dependencies not yet cached by `pip`.
 
@@ -24,17 +19,17 @@ Running "`make check`" creates a usable virtual environment under `tests/venv`, 
 
 Translating DFXML to CASE:
 
-    python dfxml_to_case.py input.dfxml output.case
+    dfxml_to_case input.dfxml output.case
 
 (`dfxml_to_case.py` allows output format selection with `--output-format`.  Default is TTL.)
 
 Translating CASE to DFXML:
 
-    python case_to_dfxml.py input.case output.dfxml
+    case_to_dfxml input.case output.dfxml
 
 If pretty-printing the XML output is desired, you may want to pipe through `xmllint`:
 
-    python case_to_dfxml.py input.case >(xmllint --format - > output.dfxml)
+    case_to_dfxml input.case >(xmllint --format - > output.dfxml)
 
 
 ### Testing

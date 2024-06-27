@@ -22,7 +22,6 @@ all: \
   .venv-pre-commit/var/.pre-commit-built.log
 
 .PHONY: \
-  check-TODO \
   check-supply-chain \
   check-supply-chain-mypy \
   check-supply-chain-pre-commit \
@@ -71,12 +70,6 @@ check: \
 	  PYTHON3=$(PYTHON3) \
 	  --directory tests \
 	  check
-
-check-TODO: \
-  check
-	$(MAKE) \
-	  --directory tests \
-	  check-TODO
 
 # This target's dependencies potentially modify the working directory's Git state, so it is intentionally not a dependency of check.
 check-supply-chain: \

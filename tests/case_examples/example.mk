@@ -38,7 +38,7 @@ objects_py_dependencies := \
 
 case_to_dfxml_dependencies := \
   $(objects_py_dependencies) \
-  $(top_srcdir)/case_to_dfxml.py
+  $(top_srcdir)/case_dfxml/case_to_dfxml.py
 
 all: \
   $(subject_dfxml)
@@ -50,7 +50,7 @@ $(subject_dfxml): \
   ../.venv.done.log
 	rm -f __$@ _$@
 	source ../venv/bin/activate \
-	  && python ../../case_to_dfxml.py \
+	  && case_to_dfxml \
 	    $< \
 	    __$@
 	xmllint \
