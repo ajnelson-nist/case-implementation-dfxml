@@ -2,9 +2,6 @@
 	path = deps/CASE-Examples
 	url = https://github.com/casework/CASE-Examples.git
 	branch = master
-[submodule "deps/case-implementation-plaso"]
-	path = deps/case-implementation-plaso
-	url = https://github.com/casework/case-implementation-plaso.git
 [submodule "deps/dfxml"]
 	path = deps/dfxml
 	url = https://github.com/dfxml-working-group/dfxml_python.git

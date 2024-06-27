@@ -30,24 +30,15 @@ all: \
   setup
 
 # Removing this flag file checks for added or removed submodules, but does not cause a submodule update to occur on submodules that have already been checked out at least once.
-.git_submodule_init: \
-  .gitmodules
-	git submodule sync
-	test -r deps/case/.git || \
-	  (git submodule init deps/case && git submodule update deps/case)
-	test -r deps/case-api-python/.git || \
-	  (git submodule init deps/case-api-python && git submodule update deps/case-api-python)
-	test -r deps/case-implementation-plaso/.git || \
-	  (git submodule init deps/case-implementation-plaso && git submodule update deps/case-implementation-plaso)
-	test -r deps/dfxml/.git || \
-	  (git submodule init deps/dfxml && git submodule update deps/dfxml)
-	test -r deps/dfxml_schema/.git || \
-	  (git submodule init deps/dfxml_schema && git submodule update deps/dfxml_schema)
-	touch $@
-
 .git_submodule_init.done.log: \
   .gitmodules
-	git submodule update --init
+	test -r deps/CASE-Examples/Makefile || \
+	  git submodule update --init deps/CASE-Examples
+	test -r deps/dfxml/Makefile || \
+	  git submodule update --init deps/dfxml
+	$(MAKE) \
+	  --directory deps/dfxml \
+	  .git_submodule_init.done.log
 	touch $@
 
 # This virtual environment is meant to be built once and then persist, even through 'make clean'.
@@ -146,10 +137,6 @@ clean-tests:
 	  clean
 
 deps/dfxml/setup.cfg: \
-  .git_submodule_init
+  .git_submodule_init.done.log
 	touch -c $@
 	test -r $@
-
-setup: \
-  .setup_complete
-	@echo "Setup complete."

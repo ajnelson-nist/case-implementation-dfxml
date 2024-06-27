@@ -28,9 +28,9 @@ endif
 
 top_srcdir := ../..
 
-dfxml_xsd := $(top_srcdir)/deps/dfxml_schema/dfxml.xsd
-
 dfxml_top_srcdir := $(top_srcdir)/deps/dfxml
+
+dfxml_xsd := $(dfxml_top_srcdir)/dependencies/dfxml_schema/dfxml.xsd
 
 objects_py_dependencies := \
   $(dfxml_top_srcdir)/dfxml/__init__.py \

@@ -20,9 +20,9 @@ PYTHON3 ?= python3
 
 top_srcdir := $(shell cd .. ; pwd)
 
-dfxml_xsd := $(top_srcdir)/deps/dfxml_schema/dfxml.xsd
-
 dfxml_top_srcdir := $(top_srcdir)/deps/dfxml
+
+dfxml_xsd := $(dfxml_top_srcdir)/dependencies/dfxml_schema/dfxml.xsd
 
 objects_py_dependencies := \
   $(dfxml_top_srcdir)/dfxml/__init__.py \
@@ -48,10 +48,7 @@ all:
   check-basic \
   check-basic-TODO \
   check-case_examples \
-  check-case_implementation_plaso_examples \
-  check-case_implementation_plaso_examples-TODO \
   clean-case_examples \
-  clean-case_implementation_plaso_examples \
   check-cli \
   check-mypy \
   clean-recursive
@@ -86,13 +83,11 @@ check: \
   check-doctest \
   check-cli \
   check-package \
-  check-case_examples \
-  check-case_implementation_plaso_examples
+  check-case_examples
 	@echo "Unit tests pass!"
 
 check-TODO: \
-  check-basic-TODO \
-  check-case_implementation_plaso_examples-TODO
+  check-basic-TODO
 
 check-basic: \
   empty.json \
@@ -106,14 +101,6 @@ check-basic-TODO: \
 check-case_examples: \
   check-basic
 	$(MAKE) -C case_examples check
-
-check-case_implementation_plaso_examples: \
-  check-basic
-	$(MAKE) -C case_implementation_plaso_examples check
-
-check-case_implementation_plaso_examples-TODO: \
-  check-case_implementation_plaso_examples
-	$(MAKE) -C case_implementation_plaso_examples check-TODO
 
 check-cli: \
   .venv.done.log
@@ -162,12 +149,8 @@ clean: \
 clean-case_examples:
 	$(MAKE) -C case_examples clean
 
-clean-case_implementation_plaso_examples:
-	$(MAKE) -C case_implementation_plaso_examples clean
-
 clean-recursive: \
-  clean-case_examples \
-  clean-case_implementation_plaso_examples
+  clean-case_examples
 
 empty.json: \
   .venv.done.log \
