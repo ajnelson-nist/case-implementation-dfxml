@@ -14,7 +14,7 @@
 #
 # We would appreciate acknowledgement if the software is used.
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 import hashlib
 
@@ -22,7 +22,7 @@ from dfxml import objects as Objects
 
 
 def main() -> None:
-    dobj = Objects.DFXMLObject(version="1.1.1")
+    dobj = Objects.DFXMLObject()
 
     fobj = Objects.FileObject()
     dobj.append(fobj)
