@@ -450,6 +450,8 @@ def main() -> None:
         if args.output_format is None
         else args.output_format
     )
+    if output_format is None:
+        output_format = "turtle"
     graph.serialize(destination=args.out_graph, format=output_format)
 
 
