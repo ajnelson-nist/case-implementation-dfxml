@@ -19,7 +19,7 @@ This program is based on example data from:
 https://github.com/casework/case/blob/master/examples/file.json
 """
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"
 
 import argparse
 import logging
@@ -102,12 +102,13 @@ def fileobject_to_trace(
     # This variable should be accessed with one or more calls to _n_content_data_facet().
     n_content_data_facet: Optional[URIRef] = None
 
-    def _n_content_data_facet() -> URIRef:
+    def _n_content_data_facet(
+        *args: Any, use_inherent_uuids: bool = False, **kwargs: Any
+    ) -> URIRef:
         """
         Idempotent initialization of n_content_data_facet.
         """
         nonlocal n_content_data_facet
-        nonlocal use_inherent_uuids
         if n_content_data_facet is None:
             if use_inherent_uuids:
                 n_content_data_facet = get_facet_uriref(
@@ -124,12 +125,13 @@ def fileobject_to_trace(
     # This variable should be accessed with one or more calls to _n_file_facet().
     n_file_facet: Optional[URIRef] = None
 
-    def _n_file_facet() -> URIRef:
+    def _n_file_facet(
+        *args: Any, use_inherent_uuids: bool = False, **kwargs: Any
+    ) -> URIRef:
         """
         Idempotent initialization of n_file_facet.
         """
         nonlocal n_file_facet
-        nonlocal use_inherent_uuids
         if n_file_facet is None:
             if use_inherent_uuids:
                 n_file_facet = get_facet_uriref(
@@ -179,7 +181,7 @@ def fileobject_to_trace(
     if fobj.filesize is not None:
         graph.add(
             (
-                _n_content_data_facet(),
+                _n_content_data_facet(use_inherent_uuids=use_inherent_uuids),
                 NS_UCO_OBSERVABLE.sizeInBytes,
                 Literal(fobj.filesize),
             )
@@ -188,7 +190,13 @@ def fileobject_to_trace(
             (_n_file_facet(), NS_UCO_OBSERVABLE.sizeInBytes, Literal(fobj.filesize))
         )
 
-    def _add_hash(l_hash_method: Literal, s_hash_value: str) -> None:
+    def _add_hash(
+        l_hash_method: Literal,
+        s_hash_value: str,
+        *args: Any,
+        use_inherent_uuids: bool = False,
+        **kwargs: Any
+    ) -> None:
         l_hash_value = Literal(s_hash_value, datatype=NS_XSD.hexBinary)
         if use_inherent_uuids:
             n_hash = ns_kb[
@@ -249,7 +257,7 @@ def volumeobject_to_trace(
             Idempotent initialization of n_file_system_facet.
             """
             nonlocal n_file_system_facet
-            nonlocal use_inherent_uuids
+            # nonlocal use_inherent_uuids
             if n_file_system_facet is None:
                 if use_inherent_uuids:
                     n_file_system_facet = get_facet_uriref(
