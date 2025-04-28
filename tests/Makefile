@@ -63,10 +63,6 @@ all:
 	source venv/bin/activate \
 	  && pip install \
 	    --editable \
-	    $(dfxml_top_srcdir)
-	source venv/bin/activate \
-	  && pip install \
-	    --editable \
 	    $(top_srcdir)[testing]
 	touch $@
 
