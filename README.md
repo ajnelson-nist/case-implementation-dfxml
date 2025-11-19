@@ -1,7 +1,7 @@
 # CASE/UCO DFXML implementation
 
 [![Continuous Integration](https://github.com/casework/CASE-Implementation-Template-Python-CLI/actions/workflows/ci.yml/badge.svg)](https://github.com/casework/CASE-Implementation-Template-Python-CLI/actions/workflows/ci.yml)
-![CASE Version](https://img.shields.io/badge/CASE%20Version-1.3.0-green)
+![CASE Version](https://img.shields.io/badge/CASE%20Version-1.4.0-green)
 
 _(Please see the [NIST disclaimer](#disclaimer).)_
 
