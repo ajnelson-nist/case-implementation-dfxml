@@ -16,10 +16,10 @@
 
 """
 This program is based on example data from:
-https://github.com/casework/case/blob/master/examples/file.json
+https://github.com/casework/CASE-Examples/blob/master/examples/illustrations/file/file.json
 """
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
 
 import argparse
 import logging
