@@ -32,7 +32,7 @@ jobs:
           - '3.14'
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         # This enables supply chain review against only a selected
         # branch.  For those using the "Git-Flow" style of branching,
