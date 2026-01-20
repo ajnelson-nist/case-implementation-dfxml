@@ -188,8 +188,7 @@ WHERE {
             # File system names are lowercased in DFXML.
             fsobj.ftype_str = l_ftype_str.toPython().lower()
 
-        for parent_result in graph.query(
-            """\
+        for parent_result in graph.query("""\
 PREFIX drafting: <http://example.org/ontology/drafting/>
 PREFIX uco-core: <https://ontology.unifiedcyberontology.org/uco/core/>
 SELECT ?lPartitionOffset
@@ -200,16 +199,14 @@ WHERE {
     uco-core:hasFacet / uco-observable:rangeOffset ?lPartitionOffset
     .
 }
-"""
-        ):
+"""):
             assert isinstance(parent_result, ResultRow)
             assert isinstance(parent_result[0], Literal)
             l_partition_offset = parent_result[0]
             fsobj.partition_offset = int(l_partition_offset)
 
         # Append all child file objects.
-        child_query = rdflib.plugins.sparql.prepareQuery(
-            """\
+        child_query = rdflib.plugins.sparql.prepareQuery("""\
 PREFIX uco-core: <https://ontology.unifiedcyberontology.org/uco/core/>
 SELECT DISTINCT ?nFile
 WHERE {
@@ -219,8 +216,7 @@ WHERE {
     uco-core:target ?nFileSystem ;
     .
 }
-"""
-        )
+""")
 
         for child_result in graph.query(
             child_query, initBindings={"nFileSystem": n_file_system}
